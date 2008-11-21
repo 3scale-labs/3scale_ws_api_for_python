@@ -1,0 +1,47 @@
+Installation:
+
+Standard distutils installation: unpack ThreeScale-1.0.tar.gz, and from ThreeScale-1.0 directory run
+
+sudo python setup.py install
+
+or you may put ThreeScale.py to the same directory as your program
+
+Usage:
+
+In short:
+
+import ThreeScale
+
+# 3scale SERVER (your contract will specify your server)
+hostname                  = "http://beta.3scale.net"
+
+# KEYS PROVIDED BY 3scale (when you create contracts)
+provider_verification_key = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+provider_auth_key         = "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+
+# KEY PROVIDED BY 3scale to your customer
+# your customer (or user) will send you this key, you must send it
+# back to 3scale for the transaction to start
+user_key                  = "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+
+# USAGE:
+
+# Create a new transaction:
+interface = ThreeScale.Interface(hostname, provider_auth_key)
+transaction = interface.start(user_key, hits = 1)
+# Should be check for
+# provider_verification_key ==  transaction['provider_verification_key']:
+
+# If the transaction was successful, you can go ahead with your service,
+# After your services is done, you must either confirm it or cancel it
+
+result = interface.confirm(transaction['id'])
+# Result can be either true or exception
+
+transaction = interface.start(user_key, hits = 2)
+result = interface.cancel(transaction['id'])
+# Result can be either true or True or exception
+
+
+For more documentation see `pydoc ThreeScale` or comments in the module
+
