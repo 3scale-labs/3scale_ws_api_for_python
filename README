@@ -45,3 +45,8 @@ result = interface.cancel(transaction['id'])
 
 For more documentation see `pydoc ThreeScale` or comments in the module
 
+
+Legal:
+
+Copyright (c) 2008 3scale networks S.L., released under the MIT license.
+
