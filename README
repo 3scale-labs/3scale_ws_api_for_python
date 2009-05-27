@@ -12,7 +12,7 @@ In short:
 
 import ThreeScale
 
-# 3scale SERVER (you can find the server hostname on http://www.3scale.net/support/api)
+# 3scale SERVER (you can find the server hostname on http://www.3scale.net/support/api )
 hostname                  = "XXX.XXXX.XXX"
 
 # KEYS PROVIDED BY 3scale (when you create contracts)
