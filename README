@@ -12,8 +12,8 @@ In short:
 
 import ThreeScale
 
-# 3scale SERVER (your contract will specify your server)
-hostname                  = "http://beta.3scale.net"
+# 3scale SERVER (you can find the server hostname on http://www.3scale.net/support/api)
+hostname                  = "XXX.XXXX.XXX"
 
 # KEYS PROVIDED BY 3scale (when you create contracts)
 provider_verification_key = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"

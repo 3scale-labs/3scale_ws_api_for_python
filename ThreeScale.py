@@ -9,7 +9,7 @@
  Next, create new interface object with 3scale backed hostname and Your
  private provider key:
  
-    interface = ThreeScale.Interface("http://3scale.net", "a3b034...")
+    interface = ThreeScale.Interface(backend_hostname, provider_key)
  
  Then for each request to Your service:
  
@@ -107,7 +107,7 @@ class Interface:
 	 Next, create new interface object with 3scale backed hostname and Your
 	 private provider key:
 	 
-	    interface = ThreeScale.Interface("http://3scale.net", "a3b034...")
+	    interface = ThreeScale.Interface(backend_hostname, provider_key)
 	 
 	 Then for each request to Your service:
 	 
@@ -147,15 +147,6 @@ class Interface:
 	 embeded.
 	"""
 
-	# URI prefix of 3scale server ('http://beta.3scale.net')
-	#uri_prefix
-	# Hostname of 3scale server ('beta.3scale.net').
-	#host
-	# Protocol of 3scale server ('http')
-	#proto
-	# Path in 3scale server ('')
-	#path
-
 	# Key that uniquely identifies the provider. This key is known only to the
 	# provider and to 3scale.
 	#provider_private_key
@@ -172,7 +163,7 @@ class Interface:
 		self.proto = addr[0].lower()
 		self.host = addr[1]
 		self.path = addr[2]
-		self.provider_private_key = self.prepare_key(provider_private_key)
+		self.provider_private_key = provider_private_key
 
 	def start(self, user_key, **usage):
 		"""Start a transaction (service request). This can be used also to send
@@ -205,7 +196,7 @@ class Interface:
 		
 		"""
 		params = {
-			'user_key' : self.prepare_key(user_key),
+			'user_key' : user_key,
 			'provider_key' : self.provider_private_key
 		}
 		params.update(self.encode_params(usage, 'usage'))
@@ -287,13 +278,6 @@ class Interface:
 		for key, value in params.items():
 			memo["%s[%s]" % (prefix, key)] = str(value)
 		return memo
-
-
-	def prepare_key(self, key):
-		if self.is_system_key(key):
-			return key[len(self.KEY_PREFIX):]
-		else:
-			return key
 
 	CODES_TO_EXCEPTIONS = {
 		'user.exceeded_limits' : LimitsExceeded,
