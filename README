@@ -1,53 +1,31 @@
+Please note: This version of the library targets the new API, which is currently in beta phase. Please contact 3scale support at support@3scale.net before you use it. You can also use older version (1.0.0) targeting the old API: http://github.com/3scale/3scale_ws_api_for_python/tree/v1.0.0
+
+
 Installation:
 
-Standard distutils installation: unpack ThreeScale-1.0.tar.gz, and from ThreeScale-1.0 directory run
+Standard distutils installation: unpack ThreeScale-2.0.tar.gz, and from ThreeScale-2.0 directory run
 
 sudo python setup.py install
 
-or you may put ThreeScale.py to the same directory as your program
+or you may put ThreeScalePY.py to the same directory as your program
 
 Usage:
 
 In short:
 
-import ThreeScale
-
-# 3scale SERVER
-# You can find the server hostname on http://www.3scale.net/support/api
-hostname                  = "XXX.XXXX.XXX"
-
-# KEYS PROVIDED BY 3scale (when you create contracts)
-provider_verification_key = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-provider_auth_key         = "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
-
-# KEY PROVIDED BY 3scale to your customer
-# your customer (or user) will send you this key, you must send it
-# back to 3scale for the transaction to start
-user_key                  = "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+import ThreeScalePY
 
 # USAGE:
 
-# Create a new transaction:
-interface = ThreeScale.Interface(hostname, provider_auth_key)
-transaction = interface.start(user_key, hits = 1)
-# Should be check for
-# provider_verification_key ==  transaction['provider_verification_key']:
+# Authorize a transaction:
 
-# If the transaction was successful, you can go ahead with your service,
-# After your services is done, you must either confirm it or cancel it
+ThreeScalePY.ThreeScaleAuthorize("provider key", "app id", "app key").authorize()
 
-result = interface.confirm(transaction['id'])
-# Result can be either true or exception
+# Report a transaction:
 
-transaction = interface.start(user_key, hits = 2)
-result = interface.cancel(transaction['id'])
-# Result can be either true or True or exception
-
-
-For more documentation see `pydoc ThreeScale` or comments in the module
-
+ThreeScalePY.ThreeScaleReport("provider key").report([{"app_id":"app id", "usage":{"hits":1, "max_value":5}}]
 
 Legal:
 
-Copyright (c) 2008 3scale networks S.L., released under the MIT license.
+Copyright (c) 2010 3scale networks S.L., released under the MIT license.
 
