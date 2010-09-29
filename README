@@ -1,6 +1,3 @@
-Please note: This version of the library targets the new API, which is currently in beta phase. Please contact 3scale support at support@3scale.net before you use it. You can also use older version (1.0.0) targeting the old API: http://github.com/3scale/3scale_ws_api_for_python/tree/v1.0.0
-
-
 Installation:
 
 Standard distutils installation: unpack ThreeScale-2.0.tar.gz, and from ThreeScale-2.0 directory run
