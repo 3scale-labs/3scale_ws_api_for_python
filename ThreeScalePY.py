@@ -277,26 +277,23 @@ class ThreeScaleReport(ThreeScale):
     """
 
     def build_post_data(self, transactions):
-        data = {
-          # TODO: handle encoding
-          'transactions' : self.encode_transactions(transactions),
-          'provider_key' : self.provider_key,
-        }
-
-        return urllib.urlencode(data)
+	return "provider_key=%s&%s" % (self.provider_key, self.encode_transactions(transactions))
 
     def encode_transactions(self, transactions):
-        """this method is not (yet) used
+        """
         @throws ThreeScaleException error, if transaction is invalid.
         """
         encoded = []
+        i = 0
 
         if type(transactions).__name__ != 'list':
             raise ThreeScaleException("Invalid transaction type")
 
         for trans in transactions:
-            encoded = self.encode_recursive(trans)
-        return encoded
+	    for part in self.encode_recursive(trans):
+	        encoded.append("transactions[%d]%s" % (i, part))
+	    i += 1
+        return "&".join(encoded)
 
     def encode_recursive(self, trans):
         """encode every value in transactions
@@ -307,17 +304,18 @@ class ThreeScaleReport(ThreeScale):
 
         for key in trans.keys():
             if key == 'usage': # usage is list
-                new_value = self.encode_recursive(trans[key])
+                val = self.encode_recursive(trans[key])[0]
+                new_value = "[usage]%s" % (self.encode_recursive(trans[key])[0])
             elif key == 'timestamp': # specially encode the timestamp
                 ts = trans[key]
                 try:
-                    new_value = time.strftime('%Y-%m-%d %H:%M:%S %z', ts)
+                    new_value = "[%s]=%s" % (key, time.strftime('%Y-%m-%d %H:%M:%S %z', ts))
                 except Exception, err:
                     raise ThreeScaleException("Invalid timestamp "
                                               "'%s' specified in "
                                               "transaction" % ts)
             else:
-                new_value = urllib.urlencode(trans)
+                new_value = "[%s]=%s" % (key, trans[key])
             result.append(new_value)
         return result
 
