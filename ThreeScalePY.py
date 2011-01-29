@@ -115,9 +115,6 @@ class ThreeScaleAuthorize(ThreeScale):
         if not self.app_id:
             err.append("App Id not defined")
 
-        if not self.app_key:
-            err.append("App key not defined")
-
         if not self.provider_key:
             err.append("Provider key not defined")
 
