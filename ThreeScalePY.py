@@ -148,6 +148,11 @@ class ThreeScaleAuthorize(ThreeScale):
             self.auth_xml = resp
             return True
         except urllib2.HTTPError, err:
+            if err.code == 409: # a 409 means correct credentials but authorization failed
+               self.authorized = False
+               self.auth_xml = err.read()
+               return False
+
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
         except urllib2.URLError, err:
