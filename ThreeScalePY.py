@@ -173,8 +173,6 @@ class ThreeScaleAuthorize(ThreeScale):
         @throws ThreeScaleException error, if xml output received from
         the server is not valid.
         """
-        if not self.authorized:
-            return False
 
         xml = None
         resp = ThreeScaleAuthorizeResponse()
@@ -184,6 +182,9 @@ class ThreeScaleAuthorize(ThreeScale):
             raise ThreeScaleException("Invalid xml %s" % err)
          
         resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
+
+        if not self.authorized:
+            resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
         reports = xml.xpathEval('/status/usage_reports/usage_report')
         for report in reports:
             resp.add_usage_report(report)
@@ -194,6 +195,7 @@ class ThreeScaleAuthorizeResponse():
     """The derived class for ThreeScale() class. The object constitutes
     the xml data retrived from authorize GET api."""
     def __init__(self):
+        self.reason = None
         self.plan = None
         self.usage_reports = []
 
@@ -203,6 +205,12 @@ class ThreeScaleAuthorizeResponse():
     def get_plan(self):
         return self.plan
 
+    def set_reason(self, reason):
+        self.reason = reason
+
+    def get_reason(self):
+        return self.reason
+            
     def add_usage_report(self, xml):
         """
         Create the ThreeScaleAuthorizeResponseUsageReport object for
