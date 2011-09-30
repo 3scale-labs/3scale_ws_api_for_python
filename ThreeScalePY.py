@@ -287,7 +287,7 @@ class ThreeScaleReport(ThreeScale):
     """
 
     def build_post_data(self, transactions):
-	return "provider_key=%s&%s" % (self.provider_key, self.encode_transactions(transactions))
+        return "provider_key=%s&%s" % (self.provider_key, self.encode_transactions(transactions))
 
     def encode_transactions(self, transactions):
         """
@@ -297,12 +297,13 @@ class ThreeScaleReport(ThreeScale):
         i = 0
 
         if type(transactions).__name__ != 'list':
-            raise ThreeScaleException("Invalid transaction type")
+             raise ThreeScaleException("Invalid transaction type")
 
         for trans in transactions:
-	    for part in self.encode_recursive(trans):
-	        encoded.append("transactions[%d]%s" % (i, part))
-	    i += 1
+             for part in self.encode_recursive(trans):
+                  encoded.append("transactions[%d]%s" % (i, part))
+                  i += 1
+
         return "&".join(encoded)
 
     def encode_recursive(self, trans):
@@ -326,6 +327,7 @@ class ThreeScaleReport(ThreeScale):
                                               "transaction" % ts)
             else:
                 new_value = "[%s]=%s" % (key, trans[key])
+
             result.append(new_value)
         return result
 
