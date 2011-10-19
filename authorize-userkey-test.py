@@ -46,7 +46,7 @@ def main():
     if not provider_key:
         usage('Provider Key not specified')
 
-    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, user_key)
+    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, None, None, user_key)
     print "user id => %s" % auth.user_key
     print "provider key => %s" % auth.provider_key
     if auth.authorize():

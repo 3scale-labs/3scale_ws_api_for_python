@@ -18,7 +18,7 @@ import ThreeScalePY
 
 ThreeScalePY.ThreeScaleAuthorize("provider key", "app id", "app key").authorize()
 
-ThreeScalePY.ThreeScaleAuthorizeUserKey("provider key", "user key").authorize()
+ThreeScalePY.ThreeScaleAuthorizeUserKey("provider key", None, None, "user key").authorize()
 
 # Report a transaction:
 

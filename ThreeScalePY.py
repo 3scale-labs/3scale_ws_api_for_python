@@ -19,7 +19,7 @@ Report GET API usage:
             print "            max => %s" % report.get_max_value()
             print "            current => %s" % report.get_current_value()
 
-    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, user_key)
+    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, None, None, user_key)
     if auth.authorize():
         resp = auth.build_auth_response()
         usage_reports = resp.get_usage_reports()
@@ -65,7 +65,7 @@ __all__ = ['ThreeScale', 'ThreeScaleAuthorize',
 
 class ThreeScale:
     """The base class to initialize the credentials and URLs"""
-    def __init__(self, provider_key, app_id=None, app_key=None):
+    def __init__(self, provider_key, app_id=None, app_key=None, user_key=None):
         """initialize the following credentials:
         - provider key
         - application id
@@ -81,6 +81,7 @@ class ThreeScale:
 
         self.app_id = app_id
         self.app_key = app_key
+        self.user_key = user_key
         self.provider_key = provider_key
      
     def get_base_url(self):
