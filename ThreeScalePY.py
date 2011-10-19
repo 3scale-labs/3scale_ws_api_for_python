@@ -19,6 +19,18 @@ Report GET API usage:
             print "            max => %s" % report.get_max_value()
             print "            current => %s" % report.get_current_value()
 
+    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, user_key)
+    if auth.authorize():
+        resp = auth.build_auth_response()
+        usage_reports = resp.get_usage_reports()
+        for report in usage_reports:
+            print "            metric => %s" % report.get_metric()
+            print "            period => %s" % report.get_period()
+            print "            start => %s" % report.get_start_period()
+            print "            end => %s" % report.get_end_period()
+            print "            max => %s" % report.get_max_value()
+            print "            current => %s" % report.get_current_value()
+
 Authorize POST API usage:
 -------------------------
     t1 = {}
@@ -42,6 +54,7 @@ import time
 
 __all__ = ['ThreeScale', 'ThreeScaleAuthorize',
            'authorize', 'build_auth_response',
+           'ThreeScaleAuthorizeUserKey', 'authorize', 'build_auth_response',
            'ThreeScaleAuthorizeResponse',
            'get_plan', 'get_usage_reports',
            'ThreeScaleAuthorizeResponseUsageReport',
@@ -114,6 +127,108 @@ class ThreeScaleAuthorize(ThreeScale):
         err = []
         if not self.app_id:
             err.append("App Id not defined")
+
+        if not self.provider_key:
+            err.append("Provider key not defined")
+
+        if len(err):
+            raise ThreeScaleException(': '.join(err))
+
+    def authorize(self):
+        """authorize() -- invoke authorize GET request. 
+        The authorize response is stored in a class variable.
+
+        returns True, if authorization is successful.
+        @throws ThreeScaleServerError error, if invalid response is
+        received.
+        @throws ThreeScaleConnectionError error, if connection can not be
+        established.
+        @throws ThreeScaleException error, if any other unknown error is
+        occurred while receiving response for authorize GET api.
+        """
+        self.authorized = False
+        self.auth_xml = None
+
+        self.validate()
+        auth_url = self.get_auth_url()
+        query_str = self.get_query_string()
+
+        query_url = "%s?%s" % (auth_url, query_str)
+        try:
+            urlobj = urllib2.urlopen(query_url)
+            resp = urlobj.read()
+            self.authorized = True
+            self.auth_xml = resp
+            return True
+        except urllib2.HTTPError, err:
+            if err.code == 409: # a 409 means correct credentials but authorization failed
+               self.authorized = False
+               self.auth_xml = err.read()
+               return False
+
+            raise ThreeScaleServerError("Invalid response for url "
+                                        "%s: %s" % (auth_url, err))
+        except urllib2.URLError, err:
+            raise ThreeScaleConnectionError("Connection error %s: " 
+                                        "%s" % (auth_url, err))
+        except Exception, err:
+            # handle all other exceptions
+            raise ThreeScaleException("Unknown error %s: " 
+                                        "%s" % (auth_url, err))
+
+    def build_auth_response(self):
+        """
+        Store the xml response from authorize GET api in a Python
+        object, ThreeScaleAuthorizeResponse. The values in xml output
+        can be retrived using the class methods.
+
+        @returns ThreeScaleAuthorizeResponse object.
+        @throws ThreeScaleException error, if xml output received from
+        the server is not valid.
+        """
+
+        xml = None
+        resp = ThreeScaleAuthorizeResponse()
+        try:
+            xml = libxml2.parseDoc(self.auth_xml)
+        except libxml2.parserError, err:
+            raise ThreeScaleException("Invalid xml %s" % err)
+         
+        resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
+
+        if not self.authorized:
+            resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
+        reports = xml.xpathEval('/status/usage_reports/usage_report')
+        for report in reports:
+            resp.add_usage_report(report)
+        return resp
+
+
+class ThreeScaleAuthorizeUserKey(ThreeScale):
+    """ThreeScaleAuthorizeUserKey(): The derived class for ThreeScale. It is
+    main class to invoke authorize GET API."""
+
+    def get_query_string(self):
+        """get the url encoded query string"""
+        params = {
+          'user_key' : self.user_key,
+          'provider_key' : self.provider_key,
+        }
+
+        return urllib.urlencode(params)
+
+    def validate(self):
+        """validate the arguments. If any of following parameters is
+        missing, exit from the script.
+        - user key
+        - provider key
+        
+        @throws ThreeScaleException error, if any of the credentials are
+        invalid.
+        """
+        err = []
+        if not self.user_key:
+            err.append("User key defined")
 
         if not self.provider_key:
             err.append("Provider key not defined")
