@@ -70,7 +70,7 @@ class ThreeScale:
         - provider key
         - application id
         - application key
-        
+
         The application id and key are optional. If it is omitted, the
         provider key alone is set. This is useful when the class is
         inherited by ThreeScaleReport class, for which application id
@@ -83,7 +83,7 @@ class ThreeScale:
         self.app_key = app_key
         self.user_key = user_key
         self.provider_key = provider_key
-     
+
     def get_base_url(self):
         """return the base url for using with authorize and report
         APIs"""
@@ -121,7 +121,7 @@ class ThreeScaleAuthorize(ThreeScale):
         - application id
         - application key
         - provider key
-        
+
         @throws ThreeScaleException error, if any of the credentials are
         invalid.
         """
@@ -136,7 +136,7 @@ class ThreeScaleAuthorize(ThreeScale):
             raise ThreeScaleException(': '.join(err))
 
     def authorize(self):
-        """authorize() -- invoke authorize GET request. 
+        """authorize() -- invoke authorize GET request.
         The authorize response is stored in a class variable.
 
         returns True, if authorization is successful.
@@ -155,6 +155,7 @@ class ThreeScaleAuthorize(ThreeScale):
         query_str = self.get_query_string()
 
         query_url = "%s?%s" % (auth_url, query_str)
+
         try:
             urlobj = urllib2.urlopen(query_url)
             resp = urlobj.read()
@@ -170,11 +171,11 @@ class ThreeScaleAuthorize(ThreeScale):
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
         except urllib2.URLError, err:
-            raise ThreeScaleConnectionError("Connection error %s: " 
+            raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (auth_url, err))
         except Exception, err:
             # handle all other exceptions
-            raise ThreeScaleException("Unknown error %s: " 
+            raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (auth_url, err))
 
     def build_auth_response(self):
@@ -194,7 +195,7 @@ class ThreeScaleAuthorize(ThreeScale):
             xml = libxml2.parseDoc(self.auth_xml)
         except libxml2.parserError, err:
             raise ThreeScaleException("Invalid xml %s" % err)
-         
+
         resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
 
         if not self.authorized:
@@ -223,7 +224,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         missing, exit from the script.
         - user key
         - provider key
-        
+
         @throws ThreeScaleException error, if any of the credentials are
         invalid.
         """
@@ -238,7 +239,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
             raise ThreeScaleException(': '.join(err))
 
     def authorize(self):
-        """authorize() -- invoke authorize GET request. 
+        """authorize() -- invoke authorize GET request.
         The authorize response is stored in a class variable.
 
         returns True, if authorization is successful.
@@ -272,11 +273,11 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
         except urllib2.URLError, err:
-            raise ThreeScaleConnectionError("Connection error %s: " 
+            raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (auth_url, err))
         except Exception, err:
             # handle all other exceptions
-            raise ThreeScaleException("Unknown error %s: " 
+            raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (auth_url, err))
 
     def build_auth_response(self):
@@ -296,7 +297,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
             xml = libxml2.parseDoc(self.auth_xml)
         except libxml2.parserError, err:
             raise ThreeScaleException("Invalid xml %s" % err)
-         
+
         resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
 
         if not self.authorized:
@@ -326,7 +327,7 @@ class ThreeScaleAuthorizeResponse():
 
     def get_reason(self):
         return self.reason
-            
+
     def add_usage_report(self, xml):
         """
         Create the ThreeScaleAuthorizeResponseUsageReport object for
@@ -346,7 +347,7 @@ class ThreeScaleAuthorizeResponse():
     def get_usage_reports(self):
         """get all usage reports returned by the authorize GET api."""
         return self.usage_reports
-  
+
 
 class ThreeScaleAuthorizeResponseUsageReport():
     """Object to store all information related to the usage report."""
@@ -365,7 +366,7 @@ class ThreeScaleAuthorizeResponseUsageReport():
         self.period = period
 
     def set_interval(self, start, end):
-        self.start_period = start 
+        self.start_period = start
         self.end_period = end
 
     def set_end_period(self, end_period):
@@ -403,49 +404,48 @@ class ThreeScaleReport(ThreeScale):
     """
 
     def build_post_data(self, transactions):
-        return "provider_key=%s&%s" % (self.provider_key, self.encode_transactions(transactions))
+        return "provider_key=%s%s" % (self.provider_key, self.encode_transactions(transactions))
 
     def encode_transactions(self, transactions):
         """
         @throws ThreeScaleException error, if transaction is invalid.
         """
-        encoded = []
+        encoded = ''
         i = 0
 
         if type(transactions).__name__ != 'list':
              raise ThreeScaleException("Invalid transaction type")
 
         for trans in transactions:
-             for part in self.encode_recursive(trans):
-                  encoded.append("transactions[%d]%s" % (i, part))
-                  i += 1
+            prefix = "&transactions[%d]" % (i)
+            encoded += self.encode_recursive(prefix, trans)
+            i += 1
 
-        return "&".join(encoded)
+        return encoded
 
-    def encode_recursive(self, trans):
+    def encode_recursive(self, prefix, trans):
         """encode every value in transactions
         @throws ThreeScaleException error, if the timestamp specified in
         transaction is invalid.
         """
         result = []
-
+        new_value = ""
         for key in trans.keys():
             if key == 'usage': # usage is list
-                val = self.encode_recursive(trans[key])[0]
-                new_value = "[usage]%s" % (self.encode_recursive(trans[key])[0])
+                    new_prefix=("%s[usage]" % (prefix))
+                    new_value += self.encode_recursive(new_prefix, trans[key])
             elif key == 'timestamp': # specially encode the timestamp
                 ts = trans[key]
                 try:
-                    new_value = "[%s]=%s" % (key, time.strftime('%Y-%m-%d %H:%M:%S %z', ts))
+                    new_value += "%s[%s]=%s" % (prefix, key, time.strftime('%Y-%m-%d %H:%M:%S %z', ts))
                 except Exception, err:
                     raise ThreeScaleException("Invalid timestamp "
                                               "'%s' specified in "
                                               "transaction" % ts)
             else:
-                new_value = "[%s]=%s" % (key, trans[key])
+                new_value += ("%s[%s]=%s" % (prefix, key, trans[key]))
 
-            result.append(new_value)
-        return result
+        return new_value
 
     def report(self, transactions):
         """send the report POST request.
@@ -471,12 +471,12 @@ class ThreeScaleReport(ThreeScale):
                                         "%s: %s" % (report_url, err))
             return False
         except urllib2.URLError, err:
-            raise ThreeScaleConnectionError("Connection error %s: " 
+            raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (report_url, err))
             return False
         except Exception, err:
             # handle all other exceptions
-            raise ThreeScaleException("Unknown error %s: " 
+            raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (report_url, err))
             return False
 
