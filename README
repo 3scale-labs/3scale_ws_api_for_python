@@ -24,6 +24,10 @@ ThreeScalePY.ThreeScaleAuthorizeUserKey("provider key", None, None, "user key").
 
 ThreeScalePY.ThreeScaleReport("provider key").report([{"app_id":"app id", "usage":{"hits":1, "max_value":5}}]
 
+OR
+
+ThreeScalePY.ThreeScaleReport("provider key").report([{"user_key":"user key", "usage":{"hits":1, "max_value":5}}]
+
 Legal:
 
 Copyright (c) 2010 3scale networks S.L., released under the MIT license.
