@@ -437,13 +437,13 @@ class ThreeScaleReport(ThreeScale):
             elif key == 'timestamp': # specially encode the timestamp
                 ts = trans[key]
                 try:
-                    new_value += "%s[%s]=%s" % (prefix, key, time.strftime('%Y-%m-%d %H:%M:%S %z', ts))
+                    new_value += "%s[%s]=%s" % (prefix, key, urllib2.quote(str(time.strftime('%Y-%m-%d %H:%M:%S %z', ts))))
                 except Exception, err:
                     raise ThreeScaleException("Invalid timestamp "
                                               "'%s' specified in "
                                               "transaction" % ts)
             else:
-                new_value += ("%s[%s]=%s" % (prefix, key, trans[key]))
+                new_value += ("%s[%s]=%s" % (prefix, key, urllib2.quote(str(trans[key]))))
 
         return new_value
 
