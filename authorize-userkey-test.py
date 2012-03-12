@@ -26,7 +26,7 @@ def main():
     user_key = None
     provider_key = None
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hu:p:", ['help', 'user-key', 'provider-key'])
+        opts, args = getopt.getopt(sys.argv[1:], "hu:p:", ['help', 'user-key=', 'provider-key='])
 
         for opt, value in opts:
             if (opt in ('-u', '--user-key')):
