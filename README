@@ -6,6 +6,8 @@ sudo python setup.py install
 
 or you may put ThreeScalePY.py to the same directory as your program
 
+libxml2 is required, if you are unable to install (as in Google AppEngine), please use the ElementTree branch.
+
 Usage:
 
 In short:
@@ -27,8 +29,4 @@ ThreeScalePY.ThreeScaleReport("provider key").report([{"app_id":"app id", "usage
 OR
 
 ThreeScalePY.ThreeScaleReport("provider key").report([{"user_key":"user key", "usage":{"hits":1, "max_value":5}}]
-
-Legal:
-
-Copyright (c) 2010 3scale networks S.L., released under the MIT license.
 
