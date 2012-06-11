@@ -28,7 +28,7 @@ def main():
     provider_key = None
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hi:p:", ['help', 
-                                   'app-id', 'provider-key'])
+                                   'app-id=', 'provider-key='])
 
         for opt, value in opts:
             if (opt in ('-i', '--app-id')):

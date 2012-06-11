@@ -5,6 +5,6 @@ Summary: Plugin to 3scale API in Python
 Home-page: http://www.3scale.net/
 Author: http://www.3scale.net/
 Author-email: http://www.3scale.net/
-License: GPL
+License: MIT
 Description: UNKNOWN
 Platform: UNKNOWN

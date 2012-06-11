@@ -16,9 +16,9 @@ class TestThreeScale(unittest.TestCase):
     """base class for testing authorize and report APIs"""
     def setupTests(self):
         # credentials used for testing the code
-        self.app_id = "INSERT AN APP ID HERE"
-        self.app_key = "INSERT AN APP KEY HERE"
-        self.provider_key = "INSERT A PROVIDER KEY HERE"
+        self.app_id = os.environ['TEST_3SCALE_APP_ID'] # or set app id here
+        self.app_key = os.environ['TEST_3SCALE_APP_KEY'] # or set app key here
+        self.provider_key = os.environ['TEST_3SCALE_PROVIDER_KEY'] # or set provider key here
 
         self.ThreeScaleAuthorize = ThreeScalePY.ThreeScaleAuthorize
         self.ThreeScaleReport = ThreeScalePY.ThreeScaleReport
@@ -66,7 +66,7 @@ class TestThreeScaleAuthorize(TestThreeScale):
         auth = self.ThreeScaleAuthorize(self.provider_key, 
                                         self.app_id, 
                                         self.app_key)
-        plan = 'plan1'
+        plan = 'Testing'
         if auth.authorize():
             resp = auth.build_auth_response()
             self.assertEquals(resp.get_plan(), plan)

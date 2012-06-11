@@ -1,0 +1,11 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+#  - "3.2" # libxml does not work
+#  - pypy # libxml does not work
+before_script:
+ - export TEST_3SCALE_APP_KEY=3e05c797ef193fee452b1ddf19defa74
+ - export TEST_3SCALE_APP_ID=75165984
+ - export TEST_3SCALE_PROVIDER_KEY=05273bcb282d1d4faafffeb01e224db0
+script: python tests/tests.py

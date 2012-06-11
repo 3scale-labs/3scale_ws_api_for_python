@@ -26,7 +26,7 @@ Authorize POST API usage:
     trans_usage['hits'] = 1
     trans_usage['max_value'] = 5
     trans_usage['timestamp'] = time.gmtime(time.time())
-    t1['app_id'] = app_id
+    t1['app_id'] = app_id OR t1['user_key']
     t1['usage'] = trans_usage
 
     transactions = [t1]
@@ -48,7 +48,6 @@ except ImportError:
    except ImportError:
        from elementtree.ElementTree import fromstring
 
-
 __all__ = ['ThreeScale', 'ThreeScaleAuthorize',
            'authorize', 'build_auth_response',
            'ThreeScaleAuthorizeResponse',
@@ -61,12 +60,12 @@ __all__ = ['ThreeScale', 'ThreeScaleAuthorize',
 
 class ThreeScale:
     """The base class to initialize the credentials and URLs"""
-    def __init__(self, provider_key, app_id=None, app_key=None):
+    def __init__(self, provider_key, app_id=None, app_key=None, user_key=None):
         """initialize the following credentials:
         - provider key
         - application id
         - application key
-        
+
         The application id and key are optional. If it is omitted, the
         provider key alone is set. This is useful when the class is
         inherited by ThreeScaleReport class, for which application id
@@ -77,8 +76,9 @@ class ThreeScale:
 
         self.app_id = app_id
         self.app_key = app_key
+        self.user_key = user_key
         self.provider_key = provider_key
-     
+
     def get_base_url(self):
         """return the base url for using with authorize and report
         APIs"""
@@ -116,7 +116,7 @@ class ThreeScaleAuthorize(ThreeScale):
         - application id
         - application key
         - provider key
-        
+
         @throws ThreeScaleException error, if any of the credentials are
         invalid.
         """
@@ -131,7 +131,7 @@ class ThreeScaleAuthorize(ThreeScale):
             raise ThreeScaleException(': '.join(err))
 
     def authorize(self):
-        """authorize() -- invoke authorize GET request. 
+        """authorize() -- invoke authorize GET request.
         The authorize response is stored in a class variable.
 
         returns True, if authorization is successful.
@@ -150,6 +150,7 @@ class ThreeScaleAuthorize(ThreeScale):
         query_str = self.get_query_string()
 
         query_url = "%s?%s" % (auth_url, query_str)
+
         try:
             urlobj = urllib2.urlopen(query_url)
             resp = urlobj.read()
@@ -165,11 +166,11 @@ class ThreeScaleAuthorize(ThreeScale):
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
         except urllib2.URLError, err:
-            raise ThreeScaleConnectionError("Connection error %s: " 
+            raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (auth_url, err))
         except Exception, err:
             # handle all other exceptions
-            raise ThreeScaleException("Unknown error %s: " 
+            raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (auth_url, err))
 
     def build_auth_response(self):
@@ -219,7 +220,7 @@ class ThreeScaleAuthorizeResponse():
 
     def get_reason(self):
         return self.reason
-            
+
     def add_usage_report(self, xml):
         """
         Create the ThreeScaleAuthorizeResponseUsageReport object for
@@ -257,7 +258,7 @@ class ThreeScaleAuthorizeResponseUsageReport():
         self.period = period
 
     def set_interval(self, start, end):
-        self.start_period = start 
+        self.start_period = start
         self.end_period = end
 
     def set_end_period(self, end_period):
@@ -305,7 +306,7 @@ class ThreeScaleReport(ThreeScale):
         i = 0
 
         if type(transactions).__name__ != 'list':
-            raise ThreeScaleException("Invalid transaction type")
+             raise ThreeScaleException("Invalid transaction type")
 
         for trans in transactions:
             prefix = "&transactions[%d]" % (i)
@@ -328,13 +329,13 @@ class ThreeScaleReport(ThreeScale):
             elif key == 'timestamp': # specially encode the timestamp
                 ts = trans[key]
                 try:
-                    new_value += "%s[%s]=%s" % (prefix, key, time.strftime('%Y-%m-%d %H:%M:%S %z', ts))
+                    new_value += "%s[%s]=%s" % (prefix, key, urllib2.quote(str(time.strftime('%Y-%m-%d %H:%M:%S %z', ts))))
                 except Exception, err:
                     raise ThreeScaleException("Invalid timestamp "
                                               "'%s' specified in "
                                               "transaction" % ts)
             else:
-                new_value += ("%s[%s]=%s" % (prefix, key, trans[key]))
+                new_value += ("%s[%s]=%s" % (prefix, key, urllib2.quote(str(trans[key]))))
 
         return new_value
 
@@ -362,12 +363,12 @@ class ThreeScaleReport(ThreeScale):
                                         "%s: %s" % (report_url, err))
             return False
         except urllib2.URLError, err:
-            raise ThreeScaleConnectionError("Connection error %s: " 
+            raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (report_url, err))
             return False
         except Exception, err:
             # handle all other exceptions
-            raise ThreeScaleException("Unknown error %s: " 
+            raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (report_url, err))
             return False
 

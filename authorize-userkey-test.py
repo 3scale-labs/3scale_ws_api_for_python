@@ -12,7 +12,7 @@ def usage(errorMessage=None):
     else:
         stream = sys.stdout
     stream.write("""
-Usage: %s [--help|-h] --app-id|-i --app-key|-k --provider-key|-p""" %
+Usage: %s [--help|-h] --user-key|-u --provider-key|-p""" %
     os.path.basename(sys.argv[0]))
     if errorMessage:
         stream.write("\nERROR: " + errorMessage + "\n")
@@ -23,18 +23,14 @@ Usage: %s [--help|-h] --app-id|-i --app-key|-k --provider-key|-p""" %
 
 def main():
     """main method"""
-    app_id = None
-    app_key = None
+    user_key = None
     provider_key = None
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:k:p:", ['help', 
-                                   'app-id=', 'app-key=', 'provider-key='])
+        opts, args = getopt.getopt(sys.argv[1:], "hu:p:", ['help', 'user-key=', 'provider-key='])
 
         for opt, value in opts:
-            if (opt in ('-i', '--app-id')):
-                app_id = value
-            elif (opt in ('-k', '--app-key')):
-                app_key = value
+            if (opt in ('-u', '--user-key')):
+                user_key = value
             elif (opt in ('-p', '--provider-key')):
                 provider_key = value
             elif (opt in ('-h', '--help')):
@@ -44,18 +40,14 @@ def main():
             usage('Invalid option specified: %s' % err)
 
 
-    if not app_id:
-        usage('App Id not specified')
-
-    if not app_key:
-        usage('App Key not specified')
+    if not user_key:
+        usage('User Key not specified')
 
     if not provider_key:
         usage('Provider Key not specified')
 
-    auth = ThreeScalePY.ThreeScaleAuthorize(provider_key, app_id, app_key)
-    print "app id => %s" % auth.app_id
-    print "app key => %s" % auth.app_key
+    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, None, None, user_key)
+    print "user id => %s" % auth.user_key
     print "provider key => %s" % auth.provider_key
     if auth.authorize():
         resp = auth.build_auth_response()
