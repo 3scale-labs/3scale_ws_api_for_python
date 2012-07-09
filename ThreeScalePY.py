@@ -5,8 +5,8 @@ interface for following APIs.
  - authorize()
  - report()
 
-Report GET API usage:
----------------------
+Report API usage (GET method):
+------------------------------
     auth = ThreeScalePY.ThreeScaleAuthorize(provider_key, app_id, app_key)
     if auth.authorize():
         resp = auth.build_auth_response()
@@ -31,8 +31,8 @@ Report GET API usage:
             print "            max => %s" % report.get_max_value()
             print "            current => %s" % report.get_current_value()
 
-Authorize POST API usage:
--------------------------
+Authorize API usage (POST method):
+----------------------------------
     t1 = {}
     trans_usage = {}
     trans_usage['hits'] = 1
