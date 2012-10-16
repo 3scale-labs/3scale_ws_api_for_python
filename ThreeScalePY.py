@@ -76,7 +76,7 @@ __all__ = ['ThreeScale',
 
 class ThreeScale:
     """The base class to initialize the credentials and URLs"""
-    def __init__(self, provider_key, app_id=None, app_key=None, user_key=None):
+    def __init__(self, provider_key, app_id="", app_key="", user_key=""):
         """initialize the following credentials:
         - provider key
         - application id
