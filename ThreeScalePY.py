@@ -6,7 +6,15 @@ interface for following APIs.
  - authorize()
  - report()
 
-Report GET API usage:
+ AuthResp GET API usage:
+---------------------
+    authrep = ThreeScalePY.ThreeScaleAuthResp(provider_key, app_id, app_key)
+    if authrep.authrep():
+        # all was ok, proceed normally
+    elif # something was wrong
+        sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
+
+ Authorize GET API usage:
 ---------------------
     auth = ThreeScalePY.ThreeScaleAuthorize(provider_key, app_id, app_key)
     if auth.authorize():
@@ -32,7 +40,7 @@ Report GET API usage:
             print "            max => %s" % report.get_max_value()
             print "            current => %s" % report.get_current_value()
 
-Authorize POST API usage:
+Report POST API usage:
 -------------------------
     t1 = {}
     trans_usage = {}
@@ -113,6 +121,8 @@ class ThreeScaleAuthRep(ThreeScale):
     main class to invoke authrep GET API."""
 
     def dict_to_params(self, dict, param):
+        """This method rebuilds hash parameters to be correctly encoded later for URL.
+        e.g. usage dictionary {'hits':1} is turned into {"usage[hits]:1}."""
         dict_params = {}
         for key in dict.keys(): 
           k = "%s[%s]" % (param, key)
@@ -158,7 +168,7 @@ class ThreeScaleAuthRep(ThreeScale):
         - other_params passes other parameters to the authrep call, e.g.
           service_id, user_id, a.s.o.
         - log passes log parameter details
-        Read more details about them here: https://support.3scale.net/reference/activedocs#operation/26
+        Read more details about AuthRep's parameters here: https://support.3scale.net/reference/activedocs#operation/26
 
         The authrep response is stored in a class variable.
 

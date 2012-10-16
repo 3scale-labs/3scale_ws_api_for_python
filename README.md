@@ -15,14 +15,26 @@ libxml2 is required, if you are unable to install (as in Google AppEngine), plea
 
 # Usage:
 
-In short:
+## AuthRep, the recommended approach:
+
 ```Python
 import ThreeScalePY
+authrep = ThreeScalePY.ThreeScaleAuthResp(provider_key, app_id, app_key)
+if authrep.authrep():
+    # all was ok, proceed normally
+elif # something was wrong
+    sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
 ```
 
-# USAGE:
+This example is doing a default authrep (metric 'hits' with 1), you can pass several metrics by doing
 
-# Authorize a transaction:
+```Python
+authrep.authrep({"hits":1, "metric1":12, ...}):
+```
+
+check the implementation and [authrep's active docs](https://support.3scale.net/reference/activedocs#operation/26) for more parameters.
+
+## Authorize transactions:
 
 ```Python
 ThreeScalePY.ThreeScaleAuthorize("provider key", "app id", "app key").authorize()
@@ -30,7 +42,7 @@ ThreeScalePY.ThreeScaleAuthorize("provider key", "app id", "app key").authorize(
 ThreeScalePY.ThreeScaleAuthorizeUserKey("provider key", None, None, "user key").authorize()
 ```
 
-# Report a transaction:
+## Report transactions:
 
 ```Python
 ThreeScalePY.ThreeScaleReport("provider key").report([{"app_id":"app id", "usage":{"hits":1, "max_value":5}}]
