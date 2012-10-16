@@ -151,11 +151,17 @@ class ThreeScaleAuthRep(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authrep(self, other_params = {}, usage = { 'hits': 1 }, log = {}):
+    def authrep(self, usage = { 'hits': 1 }, other_params = {}, log = {}):
         """authrep() -- invoke authrep GET request.
+        - usage passes the usage of each metric of your API.
+        - other_params passes other parameters to the authrep call, e.g.
+          service_id, user_id, a.s.o.
+        - log passes log parameter details
+        Read more details about them here: https://support.3scale.net/reference/activedocs#operation/26
+
         The authrep response is stored in a class variable.
 
-        returns True, if authorization is successful.
+        returns True, if AuthRep was successful (i.e. HTTP status is 200).
         @throws ThreeScaleServerError error, if invalid response is
         received.
         @throws ThreeScaleConnectionError error, if connection can not be
