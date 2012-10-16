@@ -54,7 +54,8 @@ import libxml2
 import time
 
 __all__ = ['ThreeScale', 
-           'ThreeScaleAuthRep', 'authrep', 'build_authrep_response',
+           'ThreeScaleAuthRep', 'authrep', 'build_response',
+           'ThreeScaleAuthRepResponse', 'get_reason',
            'ThreeScaleAuthorize', 'authorize', 'build_auth_response',
            'ThreeScaleAuthorizeUserKey', 'authorize', 'build_auth_response',
            'ThreeScaleAuthorizeResponse',
@@ -185,8 +186,9 @@ class ThreeScaleAuthRep(ThreeScale):
             self.authrep_xml = resp
             return True
         except urllib2.HTTPError, err:
-            if err.code == 409: # a 409 means correct credentials but authorization failed
-               self.authrepd = False
+            if err.code == 409 or err.code == 403 or err.code == 404:
+               self.authrepd    = False
+               self.error_code  = err.code
                self.authrep_xml = err.read()
                return False
 
@@ -200,13 +202,13 @@ class ThreeScaleAuthRep(ThreeScale):
             raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (authrep_url, err))
 
-    def build_authrep_response(self):
+    def build_response(self):
         """
         Store the xml response from authrep GET api in a Python
-        object, ThreeScaleAuthorizeResponse. The values in xml output
+        object, ThreeScaleAuthRepResponse. The values in xml output
         can be retrived using the class methods.
 
-        @returns ThreeScaleAuthorizeResponse object.
+        @returns ThreeScaleAuthRepResponse object.
         @throws ThreeScaleException error, if xml output received from
         the server is not valid.
         """
@@ -218,14 +220,25 @@ class ThreeScaleAuthRep(ThreeScale):
         except libxml2.parserError, err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
-        resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
-
         if not self.authrepd:
-            resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
-        reports = xml.xpathEval('/status/usage_reports/usage_report')
-        for report in reports:
-            resp.add_usage_report(report)
+            if self.error_code == 409:
+                resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
+            elif self.error_code == 403 or self.error_code == 404:
+                resp.set_reason(xml.xpathEval('/error')[0].getContent())
         return resp
+
+
+class ThreeScaleAuthRepResponse():
+    """The derived class for ThreeScale() class. The object constitutes
+    the xml data retrived from authrep GET api."""
+    def __init__(self):
+        self.reason = None
+
+    def set_reason(self, reason):
+        self.reason = reason
+
+    def get_reason(self):
+        return self.reason
 
 
 class ThreeScaleAuthorize(ThreeScale):
