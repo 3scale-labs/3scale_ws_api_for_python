@@ -2,6 +2,7 @@
 
 The Python API to interact with ThreeScale account. The library has
 interface for following APIs.
+ - authrep()
  - authorize()
  - report()
 
@@ -52,8 +53,9 @@ import urllib
 import libxml2
 import time
 
-__all__ = ['ThreeScale', 'ThreeScaleAuthorize',
-           'authorize', 'build_auth_response',
+__all__ = ['ThreeScale', 
+           'ThreeScaleAuthRep', 'authrep', 'build_authrep_response',
+           'ThreeScaleAuthorize', 'authorize', 'build_auth_response',
            'ThreeScaleAuthorizeUserKey', 'authorize', 'build_auth_response',
            'ThreeScaleAuthorizeResponse',
            'get_plan', 'get_usage_reports',
@@ -90,6 +92,11 @@ class ThreeScale:
         base_url = "%s://%s" % (self.protocol, self.domain)
         return base_url
 
+    def get_authrep_url(self):
+        """return the url for passing authrep GET request"""
+        auth_url = "%s/transactions/authrep.xml" % self.get_base_url()
+        return auth_url
+
     def get_auth_url(self):
         """return the url for passing authorize GET request"""
         auth_url = "%s/transactions/authorize.xml" % self.get_base_url()
@@ -99,6 +106,120 @@ class ThreeScale:
         """return the url for passing report POST request"""
         report_url = "%s/transactions.xml" % self.get_base_url()
         return report_url
+
+class ThreeScaleAuthRep(ThreeScale):
+    """ThreeScaleAuthRep(): The derived class for ThreeScale. It is
+    main class to invoke authrep GET API."""
+
+    def dict_to_params(self, dict, param):
+        dict_params = {}
+        for key in dict.keys(): 
+          k = "%s[%s]" % (param, key)
+          dict_params[k] = dict[key]
+        return dict_params
+
+    def get_query_string(self, other_params, usage, log):
+        """get the url encoded query string"""
+        params = {
+          'app_id' : self.app_id,
+          'app_key' : self.app_key,
+          'provider_key' : self.provider_key,
+        }
+        params.update(other_params)
+        params.update(self.dict_to_params(usage, "usage"))
+        params.update(self.dict_to_params(log, "log"))
+
+        return urllib.urlencode(params)
+
+    def validate(self):
+        """validate the arguments. If any of following parameters is
+        missing, exit from the script.
+        - application id
+        - application key
+        - provider key
+
+        @throws ThreeScaleException error, if any of the credentials are
+        invalid.
+        """
+        err = []
+        if not self.app_id:
+            err.append("App Id not defined")
+
+        if not self.provider_key:
+            err.append("Provider key not defined")
+
+        if len(err):
+            raise ThreeScaleException(': '.join(err))
+
+    def authrep(self, other_params = {}, usage = { 'hits': 1 }, log = {}):
+        """authrep() -- invoke authrep GET request.
+        The authrep response is stored in a class variable.
+
+        returns True, if authorization is successful.
+        @throws ThreeScaleServerError error, if invalid response is
+        received.
+        @throws ThreeScaleConnectionError error, if connection can not be
+        established.
+        @throws ThreeScaleException error, if any other unknown error is
+        occurred while receiving response for authrep GET api.
+        """
+        self.authrepd = False
+        self.authrep_xml = None
+
+        self.validate()
+        authrep_url = self.get_authrep_url()
+        query_str = self.get_query_string(other_params, usage, log)
+
+        query_url = "%s?%s" % (authrep_url, query_str)
+
+        try:
+            urlobj = urllib2.urlopen(query_url)
+            resp = urlobj.read()
+            self.authrepd = True
+            self.authrep_xml = resp
+            return True
+        except urllib2.HTTPError, err:
+            if err.code == 409: # a 409 means correct credentials but authorization failed
+               self.authrepd = False
+               self.authrep_xml = err.read()
+               return False
+
+            raise ThreeScaleServerError("Invalid response for url "
+                                        "%s: %s" % (authrep_url, err))
+        except urllib2.URLError, err:
+            raise ThreeScaleConnectionError("Connection error %s: "
+                                        "%s" % (authrep_url, err))
+        except Exception, err:
+            # handle all other exceptions
+            raise ThreeScaleException("Unknown error %s: "
+                                        "%s" % (authrep_url, err))
+
+    def build_authrep_response(self):
+        """
+        Store the xml response from authrep GET api in a Python
+        object, ThreeScaleAuthorizeResponse. The values in xml output
+        can be retrived using the class methods.
+
+        @returns ThreeScaleAuthorizeResponse object.
+        @throws ThreeScaleException error, if xml output received from
+        the server is not valid.
+        """
+
+        xml = None
+        resp = ThreeScaleAuthRepResponse()
+        try:
+            xml = libxml2.parseDoc(self.authrep_xml)
+        except libxml2.parserError, err:
+            raise ThreeScaleException("Invalid xml %s" % err)
+
+        resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
+
+        if not self.authrepd:
+            resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
+        reports = xml.xpathEval('/status/usage_reports/usage_report')
+        for report in reports:
+            resp.add_usage_report(report)
+        return resp
 
 
 class ThreeScaleAuthorize(ThreeScale):
