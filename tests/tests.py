@@ -20,10 +20,75 @@ class TestThreeScale(unittest.TestCase):
         self.app_key = os.environ['TEST_3SCALE_APP_KEY'] # or set app key here
         self.provider_key = os.environ['TEST_3SCALE_PROVIDER_KEY'] # or set provider key here
 
+        self.ThreeScaleAuthRep = ThreeScalePY.ThreeScaleAuthRep
         self.ThreeScaleAuthorize = ThreeScalePY.ThreeScaleAuthorize
         self.ThreeScaleReport = ThreeScalePY.ThreeScaleReport
         self.ThreeScaleServerError = ThreeScalePY.ThreeScaleServerError
         self.ThreeScaleException = ThreeScalePY.ThreeScaleException
+
+class TestThreeScaleAuthRep(TestThreeScale):
+    """test case for authrep API call"""
+
+    def setUp(self):
+        """setUp for authrep API"""
+        self.setupTests()
+
+    def testAuthRepWithValidCredentials(self):
+        """test authrep API with valid credentials"""
+        authrep = self.ThreeScaleAuthRep(self.provider_key,
+                                         self.app_id,
+                                         self.app_key)
+        self.assertTrue(authrep.authrep())
+
+    def testAuthRepWithInvalidProviderKey(self):
+        """test authrep API with invalid provider key"""
+        provider_key = 'invalidProviderKey'
+        authrep = self.ThreeScaleAuthRep(provider_key,
+                                         self.app_id,
+                                         self.app_key)
+
+        self.assertFalse(authrep.authrep())
+        self.assertEquals(403, authrep.error_code)
+        self.assertEquals("provider key \"invalidProviderKey\" is invalid", authrep.build_response().get_reason())
+
+    def testAuthRepWithInvalidAppId(self):
+        """test authrep API with invalid app id"""
+        app_id = 'invalidAppId'
+        authrep = self.ThreeScaleAuthRep(self.provider_key,
+                                         app_id,
+                                         self.app_key)
+        self.assertFalse(authrep.authrep())
+        self.assertEquals(404, authrep.error_code)
+        self.assertEquals("application with id=\"invalidAppId\" was not found", authrep.build_response().get_reason())
+
+    def testAuthRepWithInvalidAppKey(self):
+        """test authrep API with invalid app key"""
+        app_key = 'invalidAppKey'
+        authrep = self.ThreeScaleAuthRep(self.provider_key,
+                                         self.app_id,
+                                         app_key)
+        self.assertFalse(authrep.authrep())
+        self.assertEquals(409, authrep.error_code)
+        self.assertEquals("application key \"invalidAppKey\" is invalid", authrep.build_response().get_reason())
+
+    def testAuthRepWithMissingAppKey(self):
+        """test authrep API with missing app key"""
+        app_key = 'invalidAppKey'
+        authrep = self.ThreeScaleAuthRep(self.provider_key,
+                                         self.app_id)
+
+        self.assertFalse(authrep.authrep())
+        self.assertEquals(409, authrep.error_code)
+        self.assertEquals("application key is missing", authrep.build_response().get_reason())
+
+    def testAuthRepWithInvalidMetric(self):
+        """test authrep API with invalid metric"""
+        authrep = self.ThreeScaleAuthRep(self.provider_key, self.app_id, self.app_key)
+
+        self.assertFalse(authrep.authrep({"invalid_metric":1}))
+        self.assertEquals(403, authrep.error_code)
+        self.assertEquals("metric \"invalid_metric\" is invalid", authrep.build_response().get_reason())
+
 
 class TestThreeScaleAuthorize(TestThreeScale):
     """test case for authorize API call"""
@@ -31,19 +96,19 @@ class TestThreeScaleAuthorize(TestThreeScale):
     def setUp(self):
         """setUp for authorize API"""
         self.setupTests()
-  
+
     def testAuthorizeWithValidCredentials(self):
         """test authorize API with valid credentials"""
-        auth = self.ThreeScaleAuthorize(self.provider_key, 
-                                        self.app_id, 
+        auth = self.ThreeScaleAuthorize(self.provider_key,
+                                        self.app_id,
                                         self.app_key)
         self.assertTrue(auth.authorize())
 
     def testAuthorizeWithInvalidAppId(self):
         """test authorize API with invalid app id"""
         app_id = 'invalidAppId'
-        auth = self.ThreeScaleAuthorize(self.provider_key, 
-                                        app_id, 
+        auth = self.ThreeScaleAuthorize(self.provider_key,
+                                        app_id,
                                         self.app_key)
         try:
             auth.authorize()
@@ -163,9 +228,10 @@ class TestThreeScaleReport(TestThreeScale):
         self.assertTrue(report.report(transactions))
 
 if __name__ == '__main__':
-    exec_type = 'all' # argv[1] can be: authorize, report, all
+    exec_type = 'all' # argv[1] can be: authrep, authorize, report, all
     if len(sys.argv) == 2:
         exec_type = sys.argv[1]
+
     auth_tests = [
                    'testAuthorizeWithInvalidAppId',
                    'testAuthorizeWithInvalidProviderKey',
@@ -178,6 +244,19 @@ if __name__ == '__main__':
         suite = unittest.TestSuite(map(TestThreeScaleAuthorize, auth_tests))
     else:
         suite = unittest.TestSuite()
+
+    authrep_tests = [
+                      'testAuthRepWithValidCredentials',
+                      'testAuthRepWithInvalidProviderKey',
+                      'testAuthRepWithInvalidAppId',
+                      'testAuthRepWithInvalidAppKey',
+                      'testAuthRepWithMissingAppKey',
+                      'testAuthRepWithInvalidMetric',
+                    ]
+
+    for test in authrep_tests:
+        if exec_type in ('all', 'authrep'):
+            suite.addTest(TestThreeScaleAuthRep(test))
 
     report_tests = [
                      'testReportWithInvalidProviderKey',
