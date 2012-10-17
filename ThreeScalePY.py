@@ -6,12 +6,20 @@ interface for following APIs.
  - authorize()
  - report()
 
- AuthResp GET API usage:
+ AuthRep GET API usage:
 ---------------------
-    authrep = ThreeScalePY.ThreeScaleAuthResp(provider_key, app_id, app_key)
+    #app_id or oauth authentication modes
+    authrep = ThreeScalePY.ThreeScaleAuthRep(provider_key, app_id, app_key)
     if authrep.authrep():
         # all was ok, proceed normally
-    elif # something was wrong
+    else: # something was wrong
+        sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
+
+    #user_key authentication mode
+    authrep = ThreeScalePY.ThreeScaleAuthRepUserKey(provider_key, user_key)
+    if authrep.authrep():
+        # all was ok, proceed normally
+    else: # something was wrong
         sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
 
  Authorize GET API usage:
@@ -63,6 +71,7 @@ import time
 
 __all__ = ['ThreeScale', 
            'ThreeScaleAuthRep', 'authrep', 'build_response',
+           'ThreeScaleAuthRepUserKey', 'authrep', 'build_response',
            'ThreeScaleAuthRepResponse', 'get_reason',
            'ThreeScaleAuthorize', 'authorize', 'build_auth_response',
            'ThreeScaleAuthorizeUserKey', 'authorize', 'build_auth_response',
@@ -146,7 +155,6 @@ class ThreeScaleAuthRep(ThreeScale):
         """validate the arguments. If any of following parameters is
         missing, exit from the script.
         - application id
-        - application key
         - provider key
 
         @throws ThreeScaleException error, if any of the credentials are
@@ -249,6 +257,44 @@ class ThreeScaleAuthRepResponse():
 
     def get_reason(self):
         return self.reason
+
+
+class ThreeScaleAuthRepUserKey(ThreeScaleAuthRep):
+    """ThreeScaleAuthRepUserKey(): class to invoke authrep with user_key auth pattern GET API."""
+
+    def __init__(self, provider_key, user_key):
+        ThreeScaleAuthRep.__init__(self, provider_key, None, None, user_key)
+
+    def get_query_string(self, other_params, usage, log):
+        """get the url encoded query string"""
+        params = {
+          'user_key' : self.user_key,
+          'provider_key' : self.provider_key,
+        }
+        params.update(other_params)
+        params.update(self.dict_to_params(usage, "usage"))
+        params.update(self.dict_to_params(log, "log"))
+
+        return urllib.urlencode(params)
+
+    def validate(self):
+        """validate the arguments. If any of following parameters is
+        missing, exit from the script.
+        - user key
+        - provider key
+
+        @throws ThreeScaleException error, if any of the credentials are
+        invalid.
+        """
+        err = []
+        if not self.user_key:
+            err.append("User key not defined")
+
+        if not self.provider_key:
+            err.append("Provider key not defined")
+
+        if len(err):
+            raise ThreeScaleException(': '.join(err))
 
 
 class ThreeScaleAuthorize(ThreeScale):

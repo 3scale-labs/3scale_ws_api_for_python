@@ -17,19 +17,32 @@ libxml2 is required, if you are unable to install (as in Google AppEngine), plea
 
 ## AuthRep, the recommended approach:
 
+Doing an authrep for the AppId or OAuth authenthication patterns is as follows:
+
 ```Python
 import ThreeScalePY
-authrep = ThreeScalePY.ThreeScaleAuthResp(provider_key, app_id, app_key)
+authrep = ThreeScalePY.ThreeScaleAuthRep(provider_key, app_id, app_key)
 if authrep.authrep():
     # all was ok, proceed normally
-elif # something was wrong
+else: # something was wrong
     sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
 ```
 
-This example is doing a default authrep (metric 'hits' with 1), you can pass several metrics by doing
+if you are using the UserKey auth pattern do this:
 
 ```Python
-authrep.authrep({"hits":1, "metric1":12, ...}):
+import ThreeScalePY
+authrep = ThreeScalePY.ThreeScaleAuthRepUserKey(provider_key, user_key)
+if authrep.authrep():
+    # all was ok, proceed normally
+else: # something was wrong
+    sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
+```
+
+These examples are doing a default authrep call to the metric 'hits' with usage 1, you can pass several metrics by doing:
+
+```Python
+authrep.authrep({"hits": 10, "metric1": 12, ...}):
 ```
 
 check the implementation and [authrep's active docs](https://support.3scale.net/reference/activedocs#operation/26) for more parameters.
