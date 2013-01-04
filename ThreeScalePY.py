@@ -38,6 +38,7 @@ import sys
 import urllib2
 import urllib
 import time
+import collections
 
 # importing ElementTree or cElementTree, whatever is available
 try:
@@ -341,7 +342,7 @@ class ThreeScaleAuthorizeResponse():
     def get_usage_reports(self):
         """get all usage reports returned by the authorize GET api."""
         return self.usage_reports
-  
+
 
 class ThreeScaleAuthorizeResponseUsageReport():
     """Object to store all information related to the usage report."""
@@ -407,8 +408,8 @@ class ThreeScaleReport(ThreeScale):
         encoded = ''
         i = 0
 
-        if type(transactions).__name__ != 'list':
-             raise ThreeScaleException("Invalid transaction type")
+        if not isinstance(transactions, collections.Iterable):
+            raise ThreeScaleException("Invalid transaction type")
 
         for trans in transactions:
             prefix = "&transactions[%d]" % (i)
