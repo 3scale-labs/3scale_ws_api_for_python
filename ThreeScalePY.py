@@ -33,30 +33,22 @@ Authorize POST API usage:
     resp = report.report(transactions)
 """
 
-import sys
-
 import urllib2
 import urllib
 import time
 
 # importing ElementTree or cElementTree, whatever is available
 try:
-   from xml.etree.cElementTree import fromstring
+    from xml.etree.cElementTree import fromstring
 except ImportError:
-   try:
-       from xml.etree.ElementTree import fromstring
-   except ImportError:
-       from elementtree.ElementTree import fromstring
+    try:
+        from xml.etree.ElementTree import fromstring
+    except ImportError:
+        from elementtree.ElementTree import fromstring
 
-__all__ = ['ThreeScale', 'ThreeScaleAuthorize',
-           'authorize', 'build_auth_response',
-           'ThreeScaleAuthorizeResponse',
-           'get_plan', 'get_usage_reports',
-           'ThreeScaleAuthorizeResponseUsageReport',
-           'get_period', 'get_metric', 'get_start_period',
-           'get_end_period', 'get_max_value', 'get_current_value',
-           'ThreeScaleReport', 'report'
-          ]
+__all__ = ['ThreeScale', 'ThreeScaleAuthorize', 'ThreeScaleAuthorizeResponse',
+           'ThreeScaleAuthorizeResponseUsageReport', 'ThreeScaleReport']
+
 
 class ThreeScale:
     """The base class to initialize the credentials and URLs"""
@@ -103,9 +95,9 @@ class ThreeScaleAuthorize(ThreeScale):
     def get_query_string(self):
         """get the url encoded query string"""
         params = {
-          'app_id' : self.app_id,
-          'app_key' : self.app_key,
-          'provider_key' : self.provider_key,
+            'app_id': self.app_id,
+            'app_key': self.app_key,
+            'provider_key': self.provider_key,
         }
 
         return urllib.urlencode(params)
@@ -158,20 +150,20 @@ class ThreeScaleAuthorize(ThreeScale):
             self.auth_xml = resp
             return True
         except urllib2.HTTPError, err:
-            if err.code == 409: # a 409 means correct credentials but authorization failed
-               self.authorized = False
-               self.auth_xml = err.read()
-               return False
+            if err.code == 409:  # a 409 means correct credentials but authorization failed
+                self.authorized = False
+                self.auth_xml = err.read()
+                return False
 
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
         except urllib2.URLError, err:
             raise ThreeScaleConnectionError("Connection error %s: "
-                                        "%s" % (auth_url, err))
+                                            "%s" % (auth_url, err))
         except Exception, err:
             # handle all other exceptions
             raise ThreeScaleException("Unknown error %s: "
-                                        "%s" % (auth_url, err))
+                                      "%s" % (auth_url, err))
 
     def build_auth_response(self):
         """
@@ -208,21 +200,21 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
     def get_query_string(self):
         """get the url encoded query string"""
         params = {
-          'user_key' : self.user_key,
-          'provider_key' : self.provider_key,
+            'user_key': self.user_key,
+            'provider_key': self.provider_key,
         }
 
         return urllib.urlencode(params)
 
     def validate(self):
         """validate the arguments. If any of following parameters is
-	missing, exit from the script.
-	- user key
-	- provider key
+        missing, exit from the script.
+        - user key
+        - provider key
 
-	@throws ThreeScaleException error, if any of the credentials are
-	invalid.
-	"""
+        @throws ThreeScaleException error, if any of the credentials are
+        invalid.
+        """
         err = []
         if not self.user_key:
             err.append("User key defined")
@@ -235,16 +227,16 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
 
     def authorize(self):
         """authorize() -- invoke authorize GET request.
-	The authorize response is stored in a class variable.
+        The authorize response is stored in a class variable.
 
-	returns True, if authorization is successful.
-	@throws ThreeScaleServerError error, if invalid response is
-	received.
-	@throws ThreeScaleConnectionError error, if connection can not be
-	established.
-	@throws ThreeScaleException error, if any other unknown error is
-	occurred while receiving response for authorize GET api.
-	"""
+        returns True, if authorization is successful.
+        @throws ThreeScaleServerError error, if invalid response is
+        received.
+        @throws ThreeScaleConnectionError error, if connection can not be
+        established.
+        @throws ThreeScaleException error, if any other unknown error is
+        occurred while receiving response for authorize GET api.
+        """
         self.authorized = False
         self.auth_xml = None
 
@@ -260,31 +252,31 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
             self.auth_xml = resp
             return True
         except urllib2.HTTPError, err:
-            if err.code == 409: # a 409 means correct credentials but authorization failed
-               self.authorized = False
-               self.auth_xml = err.read()
-               return False
+            if err.code == 409:  # a 409 means correct credentials but authorization failed
+                self.authorized = False
+                self.auth_xml = err.read()
+                return False
 
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
         except urllib2.URLError, err:
             raise ThreeScaleConnectionError("Connection error %s: "
-                                        "%s" % (auth_url, err))
+                                            "%s" % (auth_url, err))
         except Exception, err:
             # handle all other exceptions
             raise ThreeScaleException("Unknown error %s: "
-                                        "%s" % (auth_url, err))
+                                      "%s" % (auth_url, err))
 
     def build_auth_response(self):
         """
-	Store the xml response from authorize GET api in a Python
-	object, ThreeScaleAuthorizeResponse. The values in xml output
-	can be retrived using the class methods.
+        Store the xml response from authorize GET api in a Python
+        object, ThreeScaleAuthorizeResponse. The values in xml output
+        can be retrived using the class methods.
 
-	@returns ThreeScaleAuthorizeResponse object.
-	@throws ThreeScaleException error, if xml output received from
-	the server is not valid.
-	"""
+        @returns ThreeScaleAuthorizeResponse object.
+        @throws ThreeScaleException error, if xml output received from
+        the server is not valid.
+        """
 
         xml = None
         resp = ThreeScaleAuthorizeResponse()
@@ -341,7 +333,7 @@ class ThreeScaleAuthorizeResponse():
     def get_usage_reports(self):
         """get all usage reports returned by the authorize GET api."""
         return self.usage_reports
-  
+
 
 class ThreeScaleAuthorizeResponseUsageReport():
     """Object to store all information related to the usage report."""
@@ -422,17 +414,16 @@ class ThreeScaleReport(ThreeScale):
         @throws ThreeScaleException error, if the timestamp specified in
         transaction is invalid.
         """
-        result = []
         new_value = ""
         for key in trans.keys():
-            if key == 'usage': # usage is list
-                    new_prefix=("%s[usage]" % (prefix))
-                    new_value += self.encode_recursive(new_prefix, trans[key])
-            elif key == 'timestamp': # specially encode the timestamp
+            if key == 'usage':  # usage is list
+                new_prefix = "%s[usage]" % (prefix,)
+                new_value += self.encode_recursive(new_prefix, trans[key])
+            elif key == 'timestamp':  # specially encode the timestamp
                 ts = trans[key]
                 try:
                     new_value += "%s[%s]=%s" % (prefix, key, urllib2.quote(str(time.strftime('%Y-%m-%d %H:%M:%S %z', ts))))
-                except Exception, err:
+                except:
                     raise ThreeScaleException("Invalid timestamp "
                                               "'%s' specified in "
                                               "transaction" % ts)
@@ -458,7 +449,7 @@ class ThreeScaleReport(ThreeScale):
 
         try:
             req = urllib2.Request(report_url, data)
-            resp = urllib2.urlopen(req)
+            urllib2.urlopen(req)
             return True
         except urllib2.HTTPError, err:
             raise ThreeScaleServerError("Invalid response for url "
@@ -466,22 +457,25 @@ class ThreeScaleReport(ThreeScale):
             return False
         except urllib2.URLError, err:
             raise ThreeScaleConnectionError("Connection error %s: "
-                                        "%s" % (report_url, err))
+                                            "%s" % (report_url, err))
             return False
         except Exception, err:
             # handle all other exceptions
             raise ThreeScaleException("Unknown error %s: "
-                                        "%s" % (report_url, err))
+                                      "%s" % (report_url, err))
             return False
+
 
 class ThreeScaleException(Exception):
     """main exception class. raise this exception for all other errors"""
     pass
 
+
 class ThreeScaleServerError(ThreeScaleException):
     """raise exception if there are any exception during server
     interaction"""
     pass
+
 
 class ThreeScaleConnectionError(ThreeScaleException):
     """raise exception if server connection can not be establised"""
