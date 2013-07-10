@@ -1,3 +1,7 @@
+""" Tests for the NEW way of using the plugin:
+    app_id/app_key or user_key are sent in the
+    method calls
+"""
 # -*- coding: utf-8 -*-
 import os
 import sys

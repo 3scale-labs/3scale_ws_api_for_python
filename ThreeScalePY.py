@@ -399,13 +399,23 @@ class ThreeScaleAuthorize(ThreeScale):
     """ThreeScaleAuthorize(): The derived class for ThreeScale. It is
     main class to invoke authorize GET API."""
 
-    def get_query_string(self):
+    def dict_to_params(self, dict, param):
+        """This method rebuilds hash parameters to be correctly encoded later for URL.
+        e.g. usage dictionary {'hits':1} is turned into {"usage[hits]:1}."""
+        dict_params = {}
+        for key in dict.keys():
+          k = "%s[%s]" % (param, key)
+          dict_params[k] = dict[key]
+        return dict_params
+
+    def get_query_string(self, usage):
         """get the url encoded query string"""
         params = {
           'app_id' : self.app_id,
           'app_key' : self.app_key,
           'provider_key' : self.provider_key,
         }
+        params.update(self.dict_to_params(usage, "usage"))
 
         return urllib.urlencode(params)
 
@@ -429,7 +439,7 @@ class ThreeScaleAuthorize(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authorize(self, app_id = "", app_key = ""):
+    def authorize(self, app_id = "", app_key = "", usage = { 'hits': 1 }):
         """authorize() -- invoke authorize GET request.
         The authorize response is stored in a class variable.
 
@@ -449,7 +459,7 @@ class ThreeScaleAuthorize(ThreeScale):
 
         self.validate()
         auth_url = self.get_auth_url()
-        query_str = self.get_query_string()
+        query_str = self.get_query_string(usage)
 
         query_url = "%s?%s" % (auth_url, query_str)
 
@@ -507,12 +517,23 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
     """ThreeScaleAuthorizeUserKey(): The derived class for ThreeScale. It is
     main class to invoke authorize GET API."""
 
-    def get_query_string(self):
+    def dict_to_params(self, dict, param):
+        """This method rebuilds hash parameters to be correctly encoded later for URL.
+        e.g. usage dictionary {'hits':1} is turned into {"usage[hits]:1}."""
+        dict_params = {}
+        for key in dict.keys():
+          k = "%s[%s]" % (param, key)
+          dict_params[k] = dict[key]
+        return dict_params
+
+    def get_query_string(self, usage):
         """get the url encoded query string"""
         params = {
           'user_key' : self.user_key,
           'provider_key' : self.provider_key,
         }
+
+        params.update(self.dict_to_params(usage, "usage"))
 
         return urllib.urlencode(params)
 
@@ -535,7 +556,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authorize(self, user_key = ""):
+    def authorize(self, user_key = "", usage = { 'hits': 1 }):
         """authorize() -- invoke authorize GET request.
         The authorize response is stored in a class variable.
 
@@ -554,7 +575,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
 
         self.validate()
         auth_url = self.get_auth_url()
-        query_str = self.get_query_string()
+        query_str = self.get_query_string(usage)
 
         query_url = "%s?%s" % (auth_url, query_str)
         try:
