@@ -44,7 +44,7 @@ Should you want to use plain HTTP, you need only change the *protocol* class var
 
 ## AuthRep, the recommended approach:
 
-Doing an authrep for the AppId or UserKey authenthication patterns is as follows:
+Doing an authrep for the AppId authentication pattern is as follows:
 
 ```Python
 import ThreeScalePY
@@ -131,6 +131,6 @@ else:
 # To test:
 
 To test the plugin with your real data:
-- set your app_id, app_key and provider_key in tests/tests.py
-- run **python tests/tests.py**
+- set your app_id, app_key and provider_key in tests/tests-v2.py
+- run **python tests/tests-v2.py**
 
