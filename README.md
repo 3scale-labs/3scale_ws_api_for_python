@@ -12,19 +12,26 @@ This plugin supports the 3 main calls to the 3scale backend:
 
 # Installation:
 
-Standard distutils installation: unpack ThreeScale-2.0.tar.gz, and from ThreeScale-2.0 directory run
-
+Using Pip:  
 ```Shell
-sudo python setup.py install
+pip install ThreeScalePY
 ```
 
-or you may put ThreeScalePY.py to the same directory as your program.
+Standard distutils installation:  
+download, unpack 3scale_ws_api_for_python, and from 3scale_ws_api_for_python directory run  
+
+```Shell
+python setup.py install
+```
+
+or you may put ThreeScalePY.py inside the same directory as your program.
 
 ## Dependencies
 
-libxml2 is required, if you are unable to install (as in Google AppEngine), please use the ElementTree branch.
+**libxml2** is required, if you are unable to install (as in Google AppEngine), please use the ElementTree branch.
 
-You can get the libxml2 bindings for Python from: ftp://xmlsoft.org/libxml2/python/libxml2-python-2.6.21.tar.gz
+You can get the libxml2 bindings for Python from: ftp://xmlsoft.org/libxml2/python/libxml2-python-2.6.21.tar.gz  
+
 The easiest way to install it is using pip:
 ```Shell
 pip install -r requirements.txt
@@ -80,7 +87,7 @@ ThreeScalePY.ThreeScaleAuthorizeUserKey("provider key").authorize("user key")
 You can report up to 1000 transactions in a single request. In case you have multiple services, transactions to different services have to be reported on different calls.
 
 ```Python
-ThreeScalePY.ThreeScaleReport("provider key").report([{"app_id":"app id 1", "usage":{"hits":1, "other_metric":5, "timestamp"}},
+ThreeScalePY.ThreeScaleReport("provider key").report([{"app_id":"app id 1", "usage":{"hits":1, "other_metric":5}},
 {"app_id":"app id 2", "usage":{"hits":1, "other_metric":5}},
 {"app_id":"app id 3", "usage":{"hits":1, "other_metric":5}}
 ])
@@ -107,9 +114,9 @@ if authorizer.authorize(app_id, app_key):
     t1 = {}
     t1_usage = {}
     t1_usage['hits'] = 5
-    t1_usage['timestamp'] = time.gmtime(time.time())
     t1['app_id'] = app_id
     t1['usage'] = t1_usage
+    t1['timestamp'] = time.gmtime(time.time())
     transactions= [t1]
     if reporter.report(transactions):
         # all was ok, call was authorized and report was succesful. Proceed normally.
