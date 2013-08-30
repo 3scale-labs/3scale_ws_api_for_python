@@ -88,7 +88,7 @@ class TestThreeScaleAuthRep(TestThreeScale):
         """test authrep API with invalid metric"""
         authrep = self.ThreeScaleAuthRep(self.provider_key, self.app_id, self.app_key)
 
-        self.assertFalse(authrep.authrep(usage={"invalid_metric":1})) #expects (None, None, {...}) or (usage={...})
+        self.assertFalse(authrep.authrep({"invalid_metric":1})) #expects (None, None, {...}) or (usage={...})
         self.assertEquals(403, authrep.error_code)
         self.assertEquals("metric \"invalid_metric\" is invalid", authrep.build_response().get_reason())
 

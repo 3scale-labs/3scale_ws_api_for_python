@@ -199,6 +199,15 @@ class ThreeScaleAuthRep(ThreeScale):
         self.authrepd = False
         self.authrep_xml = None
 
+        # checks to maintain backwards compatibility
+        if isinstance(app_id, dict):
+            usage = app_id
+            app_id = ""
+
+        if isinstance(app_key, dict):
+            other_params = app_key
+            app_key = ""
+
         self.app_id = self.app_id or app_id
         self.app_key = self.app_key or app_key
 
@@ -337,6 +346,11 @@ class ThreeScaleAuthRepUserKey(ThreeScale):
         self.authrepd = False
         self.authrep_xml = None
 
+        # checks to maintain backwards compatibility
+        if isinstance(user_key, dict):
+            usage = user_key
+            user_key = ""
+
         self.user_key = self.user_key or user_key
 
         self.validate()
@@ -452,6 +466,11 @@ class ThreeScaleAuthorize(ThreeScale):
         """
         self.authorized = False
         self.auth_xml = None
+
+        # checks to maintain backwards compatibility
+        if isinstance(app_id, dict):
+            usage = app_id
+            app_id = ""
 
         self.app_id = self.app_id or app_id
         self.app_key = self.app_key or app_key
@@ -569,6 +588,11 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         """
         self.authorized = False
         self.auth_xml = None
+
+        # checks to maintain backwards compatibility
+        if isinstance(user_key, dict):
+            usage = app_id
+            user_key = ""
 
         self.user_key = self.user_key or user_key
 

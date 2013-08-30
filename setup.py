@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ThreeScalePY',
-    version='1.5.2',
+    version='1.5.3',
     author='3scale',
     author_email='support@3scale-net',
     url="https://github.com/3scale/3scale_ws_api_for_python",
