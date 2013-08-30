@@ -1,0 +1,6 @@
+ThreeScale/
+*.pyc
+keys_for_tests.sh
+dist/
+MANIFEST
+ThreeScalePY.egg-info/
