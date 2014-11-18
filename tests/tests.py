@@ -131,7 +131,7 @@ class TestThreeScaleAuthorize(TestThreeScale):
         auth = self.ThreeScaleAuthorize(self.provider_key, 
                                         self.app_id, 
                                         self.app_key)
-        plan = 'Testing'
+        plan = 'Basic'
         if auth.authorize():
             resp = auth.build_auth_response()
             self.assertEquals(resp.get_plan(), plan)
