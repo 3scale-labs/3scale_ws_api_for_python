@@ -66,7 +66,7 @@ import sys
 
 import urllib2
 import urllib
-import libxml2
+from lxml import etree
 import time
 
 __all__ = ['ThreeScale', 
@@ -233,16 +233,17 @@ class ThreeScaleAuthRep(ThreeScale):
 
         xml = None
         resp = ThreeScaleAuthRepResponse()
+
         try:
-            xml = libxml2.parseDoc(self.authrep_xml)
-        except libxml2.parserError, err:
+            xml = etree.fromstring(self.authrep_xml)
+        except Exception, err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
         if not self.authrepd:
             if self.error_code == 409:
-                resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
+                resp.set_reason(xml.xpath('/status/reason')[0].text)
             elif self.error_code == 403 or self.error_code == 404:
-                resp.set_reason(xml.xpathEval('/error')[0].getContent())
+                resp.set_reason(xml.xpath('/error')[0].text)
         return resp
 
 
@@ -387,16 +388,17 @@ class ThreeScaleAuthorize(ThreeScale):
 
         xml = None
         resp = ThreeScaleAuthorizeResponse()
+
         try:
-            xml = libxml2.parseDoc(self.auth_xml)
-        except libxml2.parserError, err:
+            xml = etree.fromstring(self.auth_xml)
+        except Exception, err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
-        resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
+        resp.set_plan(xml.xpath('/status/plan')[0].text)
 
         if not self.authorized:
-            resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
-        reports = xml.xpathEval('/status/usage_reports/usage_report')
+            resp.set_reason(xml.xpath('/status/reason')[0].text)
+        reports = xml.xpath('/status/usage_reports/usage_report')
         for report in reports:
             resp.add_usage_report(report)
         return resp
