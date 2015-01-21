@@ -5,5 +5,5 @@ python:
 script: python tests/tests.py
 env:
   global:
-  - TEST_3SCALE_APP_IDS=4d4b20b9 TEST_3SCALE_APP_KEYS=ecce202ecc2eb8dc7a499c34a34d5987
+  - TEST_3SCALE_APP_ID=4d4b20b9 TEST_3SCALE_APP_KEY=ecce202ecc2eb8dc7a499c34a34d5987
   - secure: WK46Rf58rVyCF/URwHhvgqArMWyM4sJwWxNRZzYKTHIRzGuwMbu3PmZxFlHuf1xkMjd+f/sYEWFKKKuibcQH+4Rsugj3bSeUrMMlxHiT9GkvVt9pUasjI+E8HhHiWC/F92tL+o3tf3jBbqy83WUSqgOTKYzvPwhrgi09USrKB/Y=
