@@ -1,11 +1,9 @@
 language: python
 python:
-  - "2.6"
-  - "2.7"
-#  - "3.2" # libxml does not work
-#  - pypy # libxml does not work
-before_script:
- - export TEST_3SCALE_APP_KEY=3e05c797ef193fee452b1ddf19defa74
- - export TEST_3SCALE_APP_ID=75165984
- - export TEST_3SCALE_PROVIDER_KEY=05273bcb282d1d4faafffeb01e224db0
+- '2.6'
+- '2.7'
 script: python tests/tests.py
+env:
+  global:
+  - TEST_3SCALE_APP_IDS=4d4b20b9 TEST_3SCALE_APP_KEYS=ecce202ecc2eb8dc7a499c34a34d5987
+  - secure: WK46Rf58rVyCF/URwHhvgqArMWyM4sJwWxNRZzYKTHIRzGuwMbu3PmZxFlHuf1xkMjd+f/sYEWFKKKuibcQH+4Rsugj3bSeUrMMlxHiT9GkvVt9pUasjI+E8HhHiWC/F92tL+o3tf3jBbqy83WUSqgOTKYzvPwhrgi09USrKB/Y=
