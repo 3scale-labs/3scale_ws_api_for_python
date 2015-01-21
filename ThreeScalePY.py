@@ -492,15 +492,15 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         xml = None
         resp = ThreeScaleAuthorizeResponse()
         try:
-            xml = libxml2.parseDoc(self.auth_xml)
-        except libxml2.parserError, err:
+            xml = etree.fromstring(self.auth_xml)
+        except Exception, err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
-        resp.set_plan(xml.xpathEval('/status/plan')[0].getContent())
+        resp.set_plan(xml.xpath('/status/plan')[0].text)
 
         if not self.authorized:
-            resp.set_reason(xml.xpathEval('/status/reason')[0].getContent())
-        reports = xml.xpathEval('/status/usage_reports/usage_report')
+            resp.set_reason(xml.xpath('/status/reason')[0].text)
+        reports = xml.xpath('/status/usage_reports/usage_report')
         for report in reports:
             resp.add_usage_report(report)
         return resp
@@ -532,14 +532,14 @@ class ThreeScaleAuthorizeResponse():
         each usage report.
         """
         report = ThreeScaleAuthorizeResponseUsageReport()
-        report.set_metric(xml.xpathEval('@metric')[0].getContent())
-        report.set_period(xml.xpathEval('@period')[0].getContent())
-        start = xml.xpathEval('period_start')[0].getContent()
-        end = xml.xpathEval('period_end')[0].getContent()
+        report.set_metric(xml.xpath('@metric')[0])
+        report.set_period(xml.xpath('@period')[0])
+        start = xml.xpath('period_start')[0].text
+        end = xml.xpath('period_end')[0].text
         report.set_interval(start, end)
-        report.set_max_value(xml.xpathEval('max_value')[0].getContent())
-        report.set_current_value(xml.xpathEval(\
-                                'current_value')[0].getContent())
+        report.set_max_value(xml.xpath('max_value')[0].text)
+        report.set_current_value(xml.xpath(\
+                                'current_value')[0].text)
         self.usage_reports.append(report)
 
     def get_usage_reports(self):
