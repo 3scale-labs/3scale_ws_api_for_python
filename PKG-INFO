@@ -1,6 +1,6 @@
-Metadata-Version: 2.0
+Metadata-Version: 2.5
 Name: ThreeScalePY
-Version: 2.0
+Version: 2.5
 Summary: Plugin to 3scale API in Python
 Home-page: http://www.3scale.net/
 Author: http://www.3scale.net/
