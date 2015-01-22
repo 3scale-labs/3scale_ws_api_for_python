@@ -9,6 +9,7 @@ sys.path.append(BASEDIR)
 
 import unittest
 import time
+import httpretty
 
 import ThreeScalePY
 
@@ -131,23 +132,45 @@ class TestThreeScaleAuthorize(TestThreeScale):
         auth = self.ThreeScaleAuthorize(self.provider_key, 
                                         self.app_id, 
                                         self.app_key)
-        plan = 'Testing'
+        plan = 'Basic'
         if auth.authorize():
             resp = auth.build_auth_response()
             self.assertEquals(resp.get_plan(), plan)
 
+    @httpretty.activate
     def testAuthorizeResponseUsageReport(self):
-        """test authorize API response usage report (metric)"""
-        auth = self.ThreeScaleAuthorize(self.provider_key, 
-                                        self.app_id, 
-                                        self.app_key)
-        metric = 'hits'
-        if not auth.authorize():
-            self.fail('Not authorized')
+        """test parsing usage reports"""
+        xml_body = """<status>
+              <authorized>false</authorized>
+              <reason>usage limits are exceeded</reason>
+              <plan>Ultimate</plan>
+              <usage_reports>
+                <usage_report metric="hits" period="day" exceeded="true">
+                  <period_start>2010-04-26 00:00:00 +0000</period_start>
+                  <period_end>2010-04-27 00:00:00 +0000</period_end>
+                  <current_value>50002</current_value>
+                  <max_value>50000</max_value>
+                </usage_report>
+                <usage_report metric="hits" period="month">
+                  <period_start>2010-04-01 00:00:00 +0000</period_start>
+                  <period_end>2010-05-01 00:00:00 +0000</period_end>
+                  <current_value>999872</current_value>
+                  <max_value>150000</max_value>
+                </usage_report>
+              </usage_reports>
+            </status>"""
+        httpretty.register_uri(httpretty.GET, "http://su1.3scale.net/transactions/authorize.xml?provider_key=1234abcd&app_id=foo", status=200, body=xml_body)
+        auth = self.ThreeScaleAuthorize(self.provider_key, "foo", "bar")
+        self.assertTrue(auth.authorize())
+
         resp = auth.build_auth_response()
         reports = resp.get_usage_reports()
-        self.assertEquals(reports[0].get_metric(), metric)
-
+        self.assertEquals(reports[0].get_metric(), "hits")
+        self.assertEquals(reports[0].get_period(), "day")
+        self.assertEquals(reports[0].get_start_period(), "2010-04-26 00:00:00 +0000")
+        self.assertEquals(reports[0].get_end_period(), "2010-04-27 00:00:00 +0000")
+        self.assertEquals(reports[0].get_max_value(), "50000")
+        self.assertEquals(reports[0].get_current_value(), "50002")
 
 class TestThreeScaleReport(TestThreeScale):
     """test case for report API call"""
@@ -237,7 +260,7 @@ if __name__ == '__main__':
                    'testAuthorizeWithInvalidProviderKey',
                    'testAuthorizeWithValidCredentials',
                    'testAuthorizeResponsePlan',
-                   'testAuthorizeResponseUsageReport',
+                   'testAuthorizeResponseUsageReport'
                  ]
 
     if exec_type in ('all', 'authorize'):
