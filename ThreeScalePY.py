@@ -203,7 +203,7 @@ class ThreeScaleAuthRep(ThreeScale):
             self.authrepd = True
             self.authrep_xml = resp
             return True
-        except urllib2.HTTPError, err:
+        except urllib2.HTTPError as err:
             if err.code == 409 or err.code == 403 or err.code == 404:
                self.authrepd    = False
                self.error_code  = err.code
@@ -212,10 +212,10 @@ class ThreeScaleAuthRep(ThreeScale):
 
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (authrep_url, err))
-        except urllib2.URLError, err:
+        except urllib2.URLError as err:
             raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (authrep_url, err))
-        except Exception, err:
+        except Exception as err:
             # handle all other exceptions
             raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (authrep_url, err))
@@ -236,7 +236,7 @@ class ThreeScaleAuthRep(ThreeScale):
 
         try:
             xml = etree.fromstring(self.authrep_xml)
-        except Exception, err:
+        except Exception as err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
         if not self.authrepd:
@@ -359,7 +359,7 @@ class ThreeScaleAuthorize(ThreeScale):
             self.authorized = True
             self.auth_xml = resp
             return True
-        except urllib2.HTTPError, err:
+        except urllib2.HTTPError as err:
             if err.code == 409: # a 409 means correct credentials but authorization failed
                self.authorized = False
                self.auth_xml = err.read()
@@ -367,10 +367,10 @@ class ThreeScaleAuthorize(ThreeScale):
 
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
-        except urllib2.URLError, err:
+        except urllib2.URLError as err:
             raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (auth_url, err))
-        except Exception, err:
+        except Exception as err:
             # handle all other exceptions
             raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (auth_url, err))
@@ -391,7 +391,7 @@ class ThreeScaleAuthorize(ThreeScale):
 
         try:
             xml = etree.fromstring(self.auth_xml)
-        except Exception, err:
+        except Exception as err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
         resp.set_plan(xml.xpath('/status/plan')[0].text)
@@ -462,7 +462,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
             self.authorized = True
             self.auth_xml = resp
             return True
-        except urllib2.HTTPError, err:
+        except urllib2.HTTPError as err:
             if err.code == 409: # a 409 means correct credentials but authorization failed
                self.authorized = False
                self.auth_xml = err.read()
@@ -470,10 +470,10 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
 
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (auth_url, err))
-        except urllib2.URLError, err:
+        except urllib2.URLError as err:
             raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (auth_url, err))
-        except Exception, err:
+        except Exception as err:
             # handle all other exceptions
             raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (auth_url, err))
@@ -493,7 +493,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         resp = ThreeScaleAuthorizeResponse()
         try:
             xml = etree.fromstring(self.auth_xml)
-        except Exception, err:
+        except Exception as err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
         resp.set_plan(xml.xpath('/status/plan')[0].text)
@@ -636,7 +636,7 @@ class ThreeScaleReport(ThreeScale):
                 ts = trans[key]
                 try:
                     new_value += "%s[%s]=%s" % (prefix, key, urllib2.quote(str(time.strftime('%Y-%m-%d %H:%M:%S %z', ts))))
-                except Exception, err:
+                except Exception as err:
                     raise ThreeScaleException("Invalid timestamp "
                                               "'%s' specified in "
                                               "transaction" % ts)
@@ -664,15 +664,15 @@ class ThreeScaleReport(ThreeScale):
             req = urllib2.Request(report_url, data)
             resp = urllib2.urlopen(req)
             return True
-        except urllib2.HTTPError, err:
+        except urllib2.HTTPError as err:
             raise ThreeScaleServerError("Invalid response for url "
                                         "%s: %s" % (report_url, err))
             return False
-        except urllib2.URLError, err:
+        except urllib2.URLError as err:
             raise ThreeScaleConnectionError("Connection error %s: "
                                         "%s" % (report_url, err))
             return False
-        except Exception, err:
+        except Exception as err:
             # handle all other exceptions
             raise ThreeScaleException("Unknown error %s: "
                                         "%s" % (report_url, err))
