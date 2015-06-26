@@ -39,7 +39,7 @@ def main():
                 usage()
 
     except getopt.GetoptError as err:
-            usage('Invalid option specified: %s' % err)
+        usage('Invalid option specified: %s' % err)
 
     if not app_id:
         usage('App Id not specified')
@@ -65,14 +65,14 @@ def main():
 
     transactions = [t1]
 
-    print "app id => %s" % app_id
-    print "provider key => %s" % provider_key
+    print("app id => %s" % app_id)
+    print("provider key => %s" % provider_key)
     resp = report.report(transactions)
     if resp:
-        print "      SUCCESS: Report transaction posted"
+        print("      SUCCESS: Report transaction posted")
     else:
-        print "      ERROR: Not posted, perhaps invalid credentials " \
-              "specified?"
+        print("      ERROR: Not posted, perhaps invalid credentials " \
+              "specified?")
 
 if __name__ == '__main__':
     main()
