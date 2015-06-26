@@ -36,7 +36,7 @@ def main():
             elif (opt in ('-h', '--help')):
                 usage()
 
-    except getopt.GetoptError, err:
+    except getopt.GetoptError as err:
             usage('Invalid option specified: %s' % err)
 
 
