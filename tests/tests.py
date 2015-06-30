@@ -291,4 +291,5 @@ if __name__ == '__main__':
         if exec_type in ('all', 'report'):
             suite.addTest(TestThreeScaleReport(test))
 
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    result = unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()
+    sys.exit(not result)
