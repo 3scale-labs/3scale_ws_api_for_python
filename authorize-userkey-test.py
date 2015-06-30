@@ -36,8 +36,8 @@ def main():
             elif (opt in ('-h', '--help')):
                 usage()
 
-    except getopt.GetoptError, err:
-            usage('Invalid option specified: %s' % err)
+    except getopt.GetoptError as err:
+        usage('Invalid option specified: %s' % err)
 
 
     if not user_key:
@@ -47,26 +47,26 @@ def main():
         usage('Provider Key not specified')
 
     auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, None, None, user_key)
-    print "user id => %s" % auth.user_key
-    print "provider key => %s" % auth.provider_key
+    print("user id => %s" % auth.user_key)
+    print("provider key => %s" % auth.provider_key)
     if auth.authorize():
         resp = auth.build_auth_response()
     else:
-        print "     ERROR: Not authorized, perhaps invalid " \
-              "credentials specified?"
+        print("     ERROR: Not authorized, perhaps invalid " \
+              "credentials specified?")
         sys.exit(1)
 
-    print "      <===== Usage Report =====>"
-    print "           Usage Plan: %s" % resp.get_plan()
+    print("      <===== Usage Report =====>")
+    print("           Usage Plan: %s" % resp.get_plan())
     usage_reports = resp.get_usage_reports()
     for report in usage_reports:
-        print "      <===== Usage Report =====>"
-        print "            metric => %s" % report.get_metric()
-        print "            period => %s" % report.get_period()
-        print "            start => %s" % report.get_start_period()
-        print "            end => %s" % report.get_end_period()
-        print "            max => %s" % report.get_max_value()
-        print "            current => %s" % report.get_current_value()
+        print("      <===== Usage Report =====>")
+        print("            metric => %s" % report.get_metric())
+        print("            period => %s" % report.get_period())
+        print("            start => %s" % report.get_start_period())
+        print("            end => %s" % report.get_end_period())
+        print("            max => %s" % report.get_max_value())
+        print("            current => %s" % report.get_current_value())
         
 if __name__ == '__main__':
     main()

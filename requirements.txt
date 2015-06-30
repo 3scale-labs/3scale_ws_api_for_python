@@ -1,2 +1,2 @@
 lxml>=3.4.0
-httpretty==0.8.3
+httpretty==0.8.10

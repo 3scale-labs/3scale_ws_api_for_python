@@ -113,7 +113,7 @@ class TestThreeScaleAuthorize(TestThreeScale):
                                         self.app_key)
         try:
             auth.authorize()
-        except self.ThreeScaleServerError, err:
+        except self.ThreeScaleServerError as err:
             self.assert_(True, True)
 
     def testAuthorizeWithInvalidProviderKey(self):
@@ -124,7 +124,7 @@ class TestThreeScaleAuthorize(TestThreeScale):
                                         self.app_key)
         try:
             auth.authorize()
-        except self.ThreeScaleServerError, err:
+        except self.ThreeScaleServerError as err:
             self.assert_(True, True)
 
     def testAuthorizeResponsePlan(self):
@@ -195,7 +195,7 @@ class TestThreeScaleReport(TestThreeScale):
         transactions = [t1]
         try:
             report.report(transactions)
-        except self.ThreeScaleServerError, err:
+        except self.ThreeScaleServerError as err:
             self.assert_(True, True)
 
     def testReportWithInvalidTimestamp(self):
@@ -212,7 +212,7 @@ class TestThreeScaleReport(TestThreeScale):
         transactions = [t1]
         try:
             report.report(transactions)
-        except self.ThreeScaleException, err:
+        except self.ThreeScaleException as err:
             self.assert_(True, True)
 
     def testReportWithOneTransaction(self):
