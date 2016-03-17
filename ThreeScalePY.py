@@ -170,7 +170,7 @@ class ThreeScaleAuthRep(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authrep(self, usage = { 'hits': 1 }, other_params = {}, log = {}):
+    def authrep(self, usage = { 'hits': 1 }, other_params = {}, log = {}, timeout = 10):
         """authrep() -- invoke authrep GET request.
         - usage passes the usage of each metric of your API.
         - other_params passes other parameters to the authrep call, e.g.
@@ -198,7 +198,7 @@ class ThreeScaleAuthRep(ThreeScale):
         query_url = "%s?%s" % (authrep_url, query_str)
 
         try:
-            urlobj = urllib2.urlopen(query_url)
+            urlobj = urllib2.urlopen(query_url, timeout = 10)
             resp = urlobj.read()
             self.authrepd = True
             self.authrep_xml = resp
@@ -332,7 +332,7 @@ class ThreeScaleAuthorize(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authorize(self):
+    def authorize(self, timeout = 10):
         """authorize() -- invoke authorize GET request.
         The authorize response is stored in a class variable.
 
@@ -354,7 +354,7 @@ class ThreeScaleAuthorize(ThreeScale):
         query_url = "%s?%s" % (auth_url, query_str)
 
         try:
-            urlobj = urllib2.urlopen(query_url)
+            urlobj = urllib2.urlopen(query_url, timeout=timeout)
             resp = urlobj.read()
             self.authorized = True
             self.auth_xml = resp
@@ -436,7 +436,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authorize(self):
+    def authorize(self, timeout=10):
         """authorize() -- invoke authorize GET request.
         The authorize response is stored in a class variable.
 
@@ -457,7 +457,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
 
         query_url = "%s?%s" % (auth_url, query_str)
         try:
-            urlobj = urllib2.urlopen(query_url)
+            urlobj = urllib2.urlopen(query_url, timeout=timeout)
             resp = urlobj.read()
             self.authorized = True
             self.auth_xml = resp
@@ -645,7 +645,7 @@ class ThreeScaleReport(ThreeScale):
 
         return new_value
 
-    def report(self, transactions):
+    def report(self, transactions, timeout = 10):
         """send the report POST request.
 
         @returns True, if request is sent successfully.
@@ -662,7 +662,7 @@ class ThreeScaleReport(ThreeScale):
 
         try:
             req = urllib2.Request(report_url, data)
-            resp = urllib2.urlopen(req)
+            resp = urllib2.urlopen(req, timeout=timeout)
             return True
         except urllib2.HTTPError, err:
             raise ThreeScaleServerError("Invalid response for url "
