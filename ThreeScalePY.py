@@ -198,7 +198,7 @@ class ThreeScaleAuthRep(ThreeScale):
         query_url = "%s?%s" % (authrep_url, query_str)
 
         try:
-            urlobj = urllib2.urlopen(query_url, timeout = 10)
+            urlobj = urllib2.urlopen(query_url, timeout=timeout)
             resp = urlobj.read()
             self.authrepd = True
             self.authrep_xml = resp
