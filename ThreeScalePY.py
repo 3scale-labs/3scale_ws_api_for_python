@@ -360,8 +360,9 @@ class ThreeScaleAuthorize(ThreeScale):
             self.auth_xml = resp
             return True
         except urllib2.HTTPError, err:
-            if err.code == 409: # a 409 means correct credentials but authorization failed
+            if err.code == 409 or err.code == 403 or err.code == 404:
                self.authorized = False
+               self.error_code  = err.code
                self.auth_xml = err.read()
                return False
 
@@ -394,13 +395,18 @@ class ThreeScaleAuthorize(ThreeScale):
         except Exception, err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
-        resp.set_plan(xml.xpath('/status/plan')[0].text)
+        status = xml.xpath('/status')
+        if status:
+            resp.set_plan(xml.xpath('/status/plan')[0].text)
+            reports = xml.xpath('/status/usage_reports/usage_report')
+            for report in reports:
+                resp.add_usage_report(report)
 
         if not self.authorized:
-            resp.set_reason(xml.xpath('/status/reason')[0].text)
-        reports = xml.xpath('/status/usage_reports/usage_report')
-        for report in reports:
-            resp.add_usage_report(report)
+            if self.error_code == 409 and status:
+                resp.set_reason(xml.xpath('/status/reason')[0].text)
+            elif self.error_code == 403 or self.error_code == 404:
+                resp.set_reason(xml.xpath('/error')[0].text)
         return resp
 
 
