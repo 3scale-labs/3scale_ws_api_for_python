@@ -8,14 +8,14 @@ interface for following APIs.
 
  AuthRep GET API usage:
 ---------------------
-    #app_id or oauth authentication modes
+    # app_id or oauth authentication modes
     authrep = ThreeScalePY.ThreeScaleAuthRep(provider_key, app_id, app_key)
     if authrep.authrep():
         # all was ok, proceed normally
     else: # something was wrong
         sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
 
-    #user_key authentication mode
+    # user_key authentication mode
     authrep = ThreeScalePY.ThreeScaleAuthRepUserKey(provider_key, user_key)
     if authrep.authrep():
         # all was ok, proceed normally
@@ -125,10 +125,6 @@ class ThreeScale:
         report_url = "%s/transactions.xml" % self.get_base_url()
         return report_url
 
-class ThreeScaleAuthRep(ThreeScale):
-    """ThreeScaleAuthRep(): The derived class for ThreeScale. It is
-    main class to invoke authrep GET API."""
-
     def dict_to_params(self, dict, param):
         """This method rebuilds hash parameters to be correctly encoded later for URL.
         e.g. usage dictionary {'hits':1} is turned into {"usage[hits]:1}."""
@@ -136,7 +132,11 @@ class ThreeScaleAuthRep(ThreeScale):
         for key in dict.keys(): 
           k = "%s[%s]" % (param, key)
           dict_params[k] = dict[key]
-        return dict_params
+        return dict_params        
+
+class ThreeScaleAuthRep(ThreeScale):
+    """ThreeScaleAuthRep(): The derived class for ThreeScale. It is
+    main class to invoke authrep GET API."""
 
     def get_query_string(self, other_params, usage, log):
         """get the url encoded query string"""
@@ -176,7 +176,7 @@ class ThreeScaleAuthRep(ThreeScale):
         - other_params passes other parameters to the authrep call, e.g.
           service_id, user_id, a.s.o.
         - log passes log parameter details
-        Read more details about AuthRep's parameters here: https://support.3scale.net/reference/activedocs#operation/26
+        Read more details about AuthRep's parameters here: https://support.3scale.net/docs/3scale-apis-activedocs
 
         The authrep response is stored in a class variable.
 
@@ -204,7 +204,7 @@ class ThreeScaleAuthRep(ThreeScale):
             self.authrep_xml = resp
             return True
         except urllib2.HTTPError, err:
-            if err.code == 409 or err.code == 403 or err.code == 404:
+            if err.code in [403, 404, 409]:
                self.authrepd    = False
                self.error_code  = err.code
                self.authrep_xml = err.read()
@@ -302,15 +302,17 @@ class ThreeScaleAuthorize(ThreeScale):
     """ThreeScaleAuthorize(): The derived class for ThreeScale. It is
     main class to invoke authorize GET API."""
 
-    def get_query_string(self):
+    def get_query_string(self, other_params, usage):
         """get the url encoded query string"""
         params = {
           'app_id' : self.app_id,
           'app_key' : self.app_key,
           'provider_key' : self.provider_key,
         }
+        params.update(other_params)
+        params.update(self.dict_to_params(usage, "usage"))
 
-        return urllib.urlencode(params)
+        return urllib.urlencode(params)    
 
     def validate(self):
         """validate the arguments. If any of following parameters is
@@ -332,8 +334,12 @@ class ThreeScaleAuthorize(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authorize(self, timeout = 10):
+    def authorize(self, timeout = 10, usage = { 'hits': 1 }, other_params = {}):
         """authorize() -- invoke authorize GET request.
+        - usage passes the usage of each metric of your API.
+        - other_params passes other parameters to the authrep call, e.g.
+          service_id, user_id, a.s.o.
+
         The authorize response is stored in a class variable.
 
         returns True, if authorization is successful.
@@ -349,7 +355,7 @@ class ThreeScaleAuthorize(ThreeScale):
 
         self.validate()
         auth_url = self.get_auth_url()
-        query_str = self.get_query_string()
+        query_str = self.get_query_string(other_params, usage)
 
         query_url = "%s?%s" % (auth_url, query_str)
 
@@ -360,7 +366,7 @@ class ThreeScaleAuthorize(ThreeScale):
             self.auth_xml = resp
             return True
         except urllib2.HTTPError, err:
-            if err.code == 409 or err.code == 403 or err.code == 404:
+            if err.code in [403, 404, 409]:
                self.authorized = False
                self.error_code  = err.code
                self.auth_xml = err.read()
@@ -414,13 +420,14 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
     """ThreeScaleAuthorizeUserKey(): The derived class for ThreeScale. It is
     main class to invoke authorize GET API."""
 
-    def get_query_string(self):
+    def get_query_string(self, other_params, usage):
         """get the url encoded query string"""
         params = {
           'user_key' : self.user_key,
           'provider_key' : self.provider_key,
         }
-
+        params.update(other_params)
+        params.update(self.dict_to_params(usage, "usage"))
         return urllib.urlencode(params)
 
     def validate(self):
@@ -442,8 +449,13 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
-    def authorize(self, timeout=10):
+
+    def authorize(self, timeout = 10, usage = { 'hits': 1 }, other_params = {}):
         """authorize() -- invoke authorize GET request.
+        - usage passes the usage of each metric of your API.
+        - other_params passes other parameters to the authrep call, e.g.
+          service_id, user_id, a.s.o.
+
         The authorize response is stored in a class variable.
 
         returns True, if authorization is successful.
@@ -459,7 +471,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
 
         self.validate()
         auth_url = self.get_auth_url()
-        query_str = self.get_query_string()
+        query_str = self.get_query_string(other_params, usage)
 
         query_url = "%s?%s" % (auth_url, query_str)
         try:
@@ -469,8 +481,9 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
             self.auth_xml = resp
             return True
         except urllib2.HTTPError, err:
-            if err.code == 409: # a 409 means correct credentials but authorization failed
+            if err.code in [403, 404, 409]:
                self.authorized = False
+               self.error_code  = err.code
                self.auth_xml = err.read()
                return False
 
@@ -502,15 +515,19 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         except Exception, err:
             raise ThreeScaleException("Invalid xml %s" % err)
 
-        resp.set_plan(xml.xpath('/status/plan')[0].text)
+        status = xml.xpath('/status')
+        if status:
+            resp.set_plan(xml.xpath('/status/plan')[0].text)
+            reports = xml.xpath('/status/usage_reports/usage_report')
+            for report in reports:
+                resp.add_usage_report(report)
 
         if not self.authorized:
-            resp.set_reason(xml.xpath('/status/reason')[0].text)
-        reports = xml.xpath('/status/usage_reports/usage_report')
-        for report in reports:
-            resp.add_usage_report(report)
+            if self.error_code == 409 and status:
+                resp.set_reason(xml.xpath('/status/reason')[0].text)
+            elif self.error_code == 403 or self.error_code == 404:
+                resp.set_reason(xml.xpath('/error')[0].text)
         return resp
-
 
 class ThreeScaleAuthorizeResponse():
     """The derived class for ThreeScale() class. The object constitutes
