@@ -84,8 +84,11 @@ __all__ = ['ThreeScale',
           ]
 
 class ThreeScale:
+
+    DEFAULT_BACKEND_URI = 'https://su1.3scale.net:443'
+
     """The base class to initialize the credentials and URLs"""
-    def __init__(self, provider_key="", app_id="", app_key="", user_key="", service_id="", service_token=""):
+    def __init__(self, provider_key="", app_id="", app_key="", user_key="", service_id="", service_token="", backend_uri=""):
         """initialize the following credentials:
         - provider key
         - application id
@@ -104,8 +107,7 @@ class ThreeScale:
         provided.
 
         """
-        self.domain = "su1.3scale.net"
-        self.protocol = "http"
+        self.backend_uri = backend_uri or ThreeScale.DEFAULT_BACKEND_URI
 
         self.app_id = app_id
         self.app_key = app_key
@@ -122,8 +124,7 @@ class ThreeScale:
     def get_base_url(self):
         """return the base url for using with authorize and report
         APIs"""
-        base_url = "%s://%s" % (self.protocol, self.domain)
-        return base_url
+        return self.backend_uri
 
     def get_authrep_url(self):
         """return the url for passing authrep GET request"""

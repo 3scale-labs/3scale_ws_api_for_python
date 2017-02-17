@@ -159,8 +159,10 @@ class TestThreeScaleAuthorize(TestThreeScale):
                 </usage_report>
               </usage_reports>
             </status>"""
-        httpretty.register_uri(httpretty.GET, "http://su1.3scale.net/transactions/authorize.xml?provider_key=1234abcd&app_id=foo", status=200, body=xml_body)
-        auth = self.ThreeScaleAuthorize(self.provider_key, "foo", "bar")
+        auth = self.ThreeScaleAuthorize(self.provider_key, "foo", "bar")            
+        uri = "%s/transactions/authorize.xml?provider_key=1234abcd&app_id=foo" % (auth.get_base_url())
+        httpretty.register_uri(httpretty.GET, uri, status=200, body=xml_body)
+        
         self.assertTrue(auth.authorize())
 
         resp = auth.build_auth_response()
