@@ -602,11 +602,13 @@ class ThreeScaleReport(ThreeScale):
     """
 
     def build_post_data(self, transactions):
-        if self.service_id and self.service_token:
-            threescale_auth = "service_id=%s&service_token=%s" % (self.service_id, self.service_token)
+        if self.service_token:
+            body_params = "service_token=%s" % (self.service_token)
         else:
-            threescale_auth = "provider_key=%s" % (self.provider_key)
-        return "%s&%s" % (threescale_auth, self.encode_transactions(transactions))
+            body_params = "provider_key=%s" % (self.provider_key)
+        if self.service_id:
+            body_params = "%s&service_id=%s" % (body_params, self.service_id)
+        return "%s&%s" % (body_params, self.encode_transactions(transactions))
 
     def encode_transactions(self, transactions):
         """
