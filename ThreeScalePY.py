@@ -85,17 +85,25 @@ __all__ = ['ThreeScale',
 
 class ThreeScale:
     """The base class to initialize the credentials and URLs"""
-    def __init__(self, provider_key, app_id="", app_key="", user_key=""):
+    def __init__(self, provider_key="", app_id="", app_key="", user_key="", service_id="", service_token=""):
         """initialize the following credentials:
         - provider key
         - application id
         - application key
+        - user key
+        - service_id
+        - service_token
 
         The application id and key are optional. If it is omitted, the
         provider key alone is set. This is useful when the class is
         inherited by ThreeScaleReport class, for which application id
         is passed in transactions data structure and application key
-        is not necessary."""
+        is not necessary.
+    
+        @throws ThreeScaleException error, if neither provider_key nor service_token + service_id are
+        provided.
+
+        """
         self.domain = "su1.3scale.net"
         self.protocol = "http"
 
@@ -103,6 +111,13 @@ class ThreeScale:
         self.app_key = app_key
         self.user_key = user_key
         self.provider_key = provider_key
+        self.service_id = service_id
+        self.service_token = service_token
+
+        err = []
+        if not provider_key and not (service_id and service_token):
+            err.append("Provider key or service token and service ID must be defined")
+            raise ThreeScaleException(': '.join(err))
 
     def get_base_url(self):
         """return the base url for using with authorize and report
@@ -132,24 +147,31 @@ class ThreeScale:
         for key in dict.keys(): 
           k = "%s[%s]" % (param, key)
           dict_params[k] = dict[key]
-        return dict_params        
+        return dict_params
+
+    def get_query_string(self, other_params = {}, usage = {}, log = {}):
+        """get the url encoded query string"""
+
+        params = {}
+        keys = ['app_id', 'app_key', 'user_key', 'provider_key', 'service_id', 'service_token']
+
+        for key in keys:
+            value = self.__dict__[key]
+            if value:
+                params[key] = value
+
+        if other_params:
+            params.update(other_params)
+        if usage:
+            params.update(self.dict_to_params(usage, "usage"))
+        if log:
+            params.update(self.dict_to_params(log, "log"))
+
+        return urllib.urlencode(params)        
 
 class ThreeScaleAuthRep(ThreeScale):
     """ThreeScaleAuthRep(): The derived class for ThreeScale. It is
     main class to invoke authrep GET API."""
-
-    def get_query_string(self, other_params, usage, log):
-        """get the url encoded query string"""
-        params = {
-          'app_id' : self.app_id,
-          'app_key' : self.app_key,
-          'provider_key' : self.provider_key,
-        }
-        params.update(other_params)
-        params.update(self.dict_to_params(usage, "usage"))
-        params.update(self.dict_to_params(log, "log"))
-
-        return urllib.urlencode(params)
 
     def validate(self):
         """validate the arguments. If any of following parameters is
@@ -163,9 +185,6 @@ class ThreeScaleAuthRep(ThreeScale):
         err = []
         if not self.app_id:
             err.append("App Id not defined")
-
-        if not self.provider_key:
-            err.append("Provider key not defined")
 
         if len(err):
             raise ThreeScaleException(': '.join(err))
@@ -266,18 +285,6 @@ class ThreeScaleAuthRepUserKey(ThreeScaleAuthRep):
     def __init__(self, provider_key, user_key):
         ThreeScaleAuthRep.__init__(self, provider_key, None, None, user_key)
 
-    def get_query_string(self, other_params, usage, log):
-        """get the url encoded query string"""
-        params = {
-          'user_key' : self.user_key,
-          'provider_key' : self.provider_key,
-        }
-        params.update(other_params)
-        params.update(self.dict_to_params(usage, "usage"))
-        params.update(self.dict_to_params(log, "log"))
-
-        return urllib.urlencode(params)
-
     def validate(self):
         """validate the arguments. If any of following parameters is
         missing, exit from the script.
@@ -291,28 +298,13 @@ class ThreeScaleAuthRepUserKey(ThreeScaleAuthRep):
         if not self.user_key:
             err.append("User key not defined")
 
-        if not self.provider_key:
-            err.append("Provider key not defined")
-
         if len(err):
             raise ThreeScaleException(': '.join(err))
 
 
 class ThreeScaleAuthorize(ThreeScale):
     """ThreeScaleAuthorize(): The derived class for ThreeScale. It is
-    main class to invoke authorize GET API."""
-
-    def get_query_string(self, other_params, usage):
-        """get the url encoded query string"""
-        params = {
-          'app_id' : self.app_id,
-          'app_key' : self.app_key,
-          'provider_key' : self.provider_key,
-        }
-        params.update(other_params)
-        params.update(self.dict_to_params(usage, "usage"))
-
-        return urllib.urlencode(params)    
+    main class to invoke authorize GET API."""  
 
     def validate(self):
         """validate the arguments. If any of following parameters is
@@ -327,9 +319,6 @@ class ThreeScaleAuthorize(ThreeScale):
         err = []
         if not self.app_id:
             err.append("App Id not defined")
-
-        if not self.provider_key:
-            err.append("Provider key not defined")
 
         if len(err):
             raise ThreeScaleException(': '.join(err))
@@ -420,16 +409,6 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
     """ThreeScaleAuthorizeUserKey(): The derived class for ThreeScale. It is
     main class to invoke authorize GET API."""
 
-    def get_query_string(self, other_params, usage):
-        """get the url encoded query string"""
-        params = {
-          'user_key' : self.user_key,
-          'provider_key' : self.provider_key,
-        }
-        params.update(other_params)
-        params.update(self.dict_to_params(usage, "usage"))
-        return urllib.urlencode(params)
-
     def validate(self):
         """validate the arguments. If any of following parameters is
         missing, exit from the script.
@@ -442,9 +421,6 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         err = []
         if not self.user_key:
             err.append("User key defined")
-
-        if not self.provider_key:
-            err.append("Provider key not defined")
 
         if len(err):
             raise ThreeScaleException(': '.join(err))
@@ -625,7 +601,11 @@ class ThreeScaleReport(ThreeScale):
     """
 
     def build_post_data(self, transactions):
-        return "provider_key=%s%s" % (self.provider_key, self.encode_transactions(transactions))
+        if self.service_id and self.service_token:
+            threescale_auth = "service_id=%s&service_token=%s" % (self.service_id, self.service_token)
+        else:
+            threescale_auth = "provider_key=%s" % (self.provider_key)
+        return "%s&%s" % (threescale_auth, self.encode_transactions(transactions))
 
     def encode_transactions(self, transactions):
         """
