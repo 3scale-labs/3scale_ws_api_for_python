@@ -68,6 +68,7 @@ import urllib2
 import urllib
 from lxml import etree
 import time
+from urlparse import urlparse
 
 __all__ = ['ThreeScale', 
            'ThreeScaleAuthRep', 'authrep', 'build_response',
@@ -86,6 +87,11 @@ __all__ = ['ThreeScale',
 class ThreeScale:
 
     DEFAULT_BACKEND_URI = 'https://su1.3scale.net:443'
+
+    def validate_backend_uri(self, uri):
+        parsed = urlparse(uri)
+        valid = True if parsed.scheme in ['http','https'] and parsed.netloc else False
+        return valid
 
     """The base class to initialize the credentials and URLs"""
     def __init__(self, provider_key="", app_id="", app_key="", user_key="", service_id="", service_token="", backend_uri=""):
@@ -107,6 +113,10 @@ class ThreeScale:
         provided.
 
         """
+
+        if backend_uri and not self.validate_backend_uri(backend_uri):
+            raise ThreeScaleException("The backend URI '%s' is invalid" % backend_uri)
+
         self.backend_uri = backend_uri or ThreeScale.DEFAULT_BACKEND_URI
 
         self.app_id = app_id
@@ -618,7 +628,7 @@ class ThreeScaleReport(ThreeScale):
         i = 0
 
         if type(transactions).__name__ != 'list':
-             raise ThreeScaleException("Invalid transaction type")
+            raise ThreeScaleException("Invalid transaction type")
 
         for trans in transactions:
             prefix = "&transactions[%d]" % (i)

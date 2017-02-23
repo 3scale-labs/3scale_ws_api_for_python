@@ -21,11 +21,27 @@ class TestThreeScale(unittest.TestCase):
         self.app_key = os.environ['TEST_3SCALE_APP_KEY'] # or set app key here
         self.provider_key = os.environ['TEST_3SCALE_PROVIDER_KEY'] # or set provider key here
 
+        self.ThreeScale = ThreeScalePY.ThreeScale
         self.ThreeScaleAuthRep = ThreeScalePY.ThreeScaleAuthRep
         self.ThreeScaleAuthorize = ThreeScalePY.ThreeScaleAuthorize
         self.ThreeScaleReport = ThreeScalePY.ThreeScaleReport
         self.ThreeScaleServerError = ThreeScalePY.ThreeScaleServerError
         self.ThreeScaleException = ThreeScalePY.ThreeScaleException
+
+    def setUp(self):
+        self.setupTests()
+
+    def testCorrectUrlValidation(self):
+        """test constructor with valid custom backend URL"""
+        uri = 'http://backend.url:80'
+        client = self.ThreeScale(self.provider_key, backend_uri=uri)
+        self.assertEqual(client.get_base_url(), uri)
+
+    def testInvalidUrlValidation(self):
+        """test constructor with invalid custom backend URL"""
+        uri = 'invalid-url'
+        with self.assertRaises(self.ThreeScaleException):
+            client = self.ThreeScale(self.provider_key, backend_uri=uri)
 
 class TestThreeScaleAuthRep(TestThreeScale):
     """test case for authrep API call"""
@@ -292,6 +308,9 @@ if __name__ == '__main__':
     for test in report_tests:
         if exec_type in ('all', 'report'):
             suite.addTest(TestThreeScaleReport(test))
+
+    suite.addTest(TestThreeScale('testCorrectUrlValidation'))
+    suite.addTest(TestThreeScale('testInvalidUrlValidation'))
 
     result = unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()
     sys.exit(not result)
