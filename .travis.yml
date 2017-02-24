@@ -5,5 +5,8 @@ python:
 script: python tests/tests.py
 env:
   global:
-  - TEST_3SCALE_APP_ID=4d4b20b9 TEST_3SCALE_APP_KEY=ecce202ecc2eb8dc7a499c34a34d5987
+  - TEST_3SCALE_APP_ID=4d4b20b9
+  - secure: LaouAl+g/rktPT5PUpCEfIhBZHrRjCQWS9PJWNX5h566jYv2+Q5tNJ95GzPbC7eR46N1nK6X5/NixHAOUsnrDcGsC2eFA6Fsa3iYTzndpbNbxmOjpzG0eJgAtmvAFJrkkArw2RbfADd3wX/GD3sx8Lsvz7dVbpHUpruDMMEU6W8=
   - secure: WK46Rf58rVyCF/URwHhvgqArMWyM4sJwWxNRZzYKTHIRzGuwMbu3PmZxFlHuf1xkMjd+f/sYEWFKKKuibcQH+4Rsugj3bSeUrMMlxHiT9GkvVt9pUasjI+E8HhHiWC/F92tL+o3tf3jBbqy83WUSqgOTKYzvPwhrgi09USrKB/Y=
+  - secure: Aaqs7+g+KFsIPX3S6BNW7C1QgfmhRJFaKMAMtAzXq3S16phTmqiLAFtsFywlvVBiy3MSP6xPqQhacdP6kf1VtIezMucG6G1pJBN8bE41PreQ9Knmphe6roe7obk3xv7wiwqtNfBKoFdfkAt5SWV6QxBLThR4gj3syLhGeUtjsrY=
+  - secure: M5GRFnLaZCYUszd5fOozn1H98uVMWOhKro7BGOxlpr8GP/qsGwBFb+siTRp0o99pgr2fKay3YS2oGIvXxZxpmA7QrjeN+/xauZcJhvllQiYa/U0p+Ho+L2R6qBtFFIfKJRNtmFK2GfCgkVeQBEQW5I8BtKRadaNsUwl2P9MIWgY=
