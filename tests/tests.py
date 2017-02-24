@@ -40,8 +40,7 @@ class TestThreeScale(unittest.TestCase):
     def testInvalidUrlValidation(self):
         """test constructor with invalid custom backend URL"""
         uri = 'invalid-url'
-        with self.assertRaises(self.ThreeScaleException):
-            client = self.ThreeScale(self.provider_key, backend_uri=uri)
+        self.assertRaises(self.ThreeScaleException, self.ThreeScale, self.provider_key, backend_uri=uri)
 
 class TestThreeScaleAuthRep(TestThreeScale):
     """test case for authrep API call"""
@@ -127,10 +126,9 @@ class TestThreeScaleAuthorize(TestThreeScale):
         auth = self.ThreeScaleAuthorize(self.provider_key,
                                         app_id,
                                         self.app_key)
-        try:
-            auth.authorize()
-        except self.ThreeScaleServerError, err:
-            self.assert_(True, True)
+        self.assertFalse(auth.authorize())
+        self.assertEquals(404, auth.error_code)
+        self.assertEquals("application with id=\"invalidAppId\" was not found", auth.build_auth_response().get_reason())
 
     def testAuthorizeWithInvalidProviderKey(self):
         """test authorize API with invalid provider key"""
@@ -138,11 +136,10 @@ class TestThreeScaleAuthorize(TestThreeScale):
         auth = self.ThreeScaleAuthorize(provider_key, 
                                         self.app_id, 
                                         self.app_key)
-        try:
-            auth.authorize()
-        except self.ThreeScaleServerError, err:
-            self.assert_(True, True)
-
+        self.assertFalse(auth.authorize())
+        self.assertEquals(403, auth.error_code)
+        self.assertEquals("provider key \"invalidProviderKey\" is invalid", auth.build_auth_response().get_reason())
+            
     def testAuthorizeResponsePlan(self):
         """test authorize API response (plan)"""
         auth = self.ThreeScaleAuthorize(self.provider_key, 
@@ -211,10 +208,7 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['timestamp'] = time.gmtime(time.time())
 
         transactions = [t1]
-        try:
-            report.report(transactions)
-        except self.ThreeScaleServerError, err:
-            self.assert_(True, True)
+        self.assertRaises(self.ThreeScaleServerError, report.report, transactions)
 
     def testReportWithInvalidTimestamp(self):
         """test report API with invalid timestamp"""
@@ -228,10 +222,7 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['timestamp'] = 'invalidTimeStamp'
 
         transactions = [t1]
-        try:
-            report.report(transactions)
-        except self.ThreeScaleException, err:
-            self.assert_(True, True)
+        self.assertRaises(self.ThreeScaleException, report.report, transactions)
 
     def testReportWithOneTransaction(self):
         """test report API with one transaction"""
