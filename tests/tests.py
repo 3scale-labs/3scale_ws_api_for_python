@@ -34,13 +34,13 @@ class TestThreeScale(unittest.TestCase):
         self.setupTests()
 
     def testCorrectUrlValidation(self):
-        """test constructor with valid custom backend URL"""
+        """test constructor with valid custom backend URI"""
         uri = 'http://backend.url:80'
         client = self.ThreeScale(self.provider_key, backend_uri=uri)
         self.assertEqual(client.get_base_url(), uri)
 
     def testInvalidUrlValidation(self):
-        """test constructor with invalid custom backend URL"""
+        """test constructor with invalid custom backend URI"""
         uri = 'invalid-url'
         self.assertRaises(self.ThreeScaleException, self.ThreeScale, self.provider_key, backend_uri=uri)
 

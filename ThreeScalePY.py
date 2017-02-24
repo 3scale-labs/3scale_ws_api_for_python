@@ -1,7 +1,7 @@
-"""Python API for ThreeScale account.
+"""Python API for 3scale Service Management API.
 
-The Python API to interact with ThreeScale account. The library has
-interface for following APIs.
+The Python API to interact with 3scale Service Management API account. The library supports 
+the 3 main calls to the 3scale Service Management API:
  - authrep()
  - authorize()
  - report()
@@ -9,14 +9,16 @@ interface for following APIs.
  AuthRep GET API usage:
 ---------------------
     # app_id or oauth authentication modes
-    authrep = ThreeScalePY.ThreeScaleAuthRep(provider_key, app_id, app_key)
+    authrep = ThreeScalePY.ThreeScaleAuthRep(app_id = 'your_app_id', app_key = 'your_app_key', 
+                              service_id = 'your_service_id', service_token = 'your_service_token')
     if authrep.authrep():
         # all was ok, proceed normally
     else: # something was wrong
         sys.stdout.write(" reason = %s \n" % authrep.build_response().get_reason())
 
     # user_key authentication mode
-    authrep = ThreeScalePY.ThreeScaleAuthRepUserKey(provider_key, user_key)
+    authrep = ThreeScalePY.ThreeScaleAuthRepUserKey(user_key = 'your_user_key', 
+                          service_id = 'your_service_id', service_token = 'your_service_token')
     if authrep.authrep():
         # all was ok, proceed normally
     else: # something was wrong
@@ -24,7 +26,8 @@ interface for following APIs.
 
  Authorize GET API usage:
 ---------------------
-    auth = ThreeScalePY.ThreeScaleAuthorize(provider_key, app_id, app_key)
+    auth = ThreeScalePY.ThreeScaleAuthorize(app_id = 'your_app_id', app_key = 'your_app_key', 
+                          service_id = 'your_service_id', service_token = 'your_service_token')
     if auth.authorize():
         resp = auth.build_auth_response()
         usage_reports = resp.get_usage_reports()
@@ -36,7 +39,8 @@ interface for following APIs.
             print "            max => %s" % report.get_max_value()
             print "            current => %s" % report.get_current_value()
 
-    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(provider_key, None, None, user_key)
+    auth = ThreeScalePY.ThreeScaleAuthorizeUserKey(user_key = 'your_user_key', 
+                          service_id = 'your_service_id', service_token = 'your_service_token')
     if auth.authorize():
         resp = auth.build_auth_response()
         usage_reports = resp.get_usage_reports()
@@ -59,6 +63,7 @@ Report POST API usage:
     t1['usage'] = trans_usage
 
     transactions = [t1]
+    report = ThreeScalePY.ThreeScaleReport(service_id = 'your_service_id', service_token = 'your_service_token')
     resp = report.report(transactions)
 """
 
@@ -431,7 +436,7 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
         """
         err = []
         if not self.user_key:
-            err.append("User key defined")
+            err.append("User key not defined")
 
         if len(err):
             raise ThreeScaleException(': '.join(err))
