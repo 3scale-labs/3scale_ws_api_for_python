@@ -293,8 +293,8 @@ class ThreeScaleAuthRepResponse():
 class ThreeScaleAuthRepUserKey(ThreeScaleAuthRep):
     """ThreeScaleAuthRepUserKey(): class to invoke authrep with user_key auth pattern GET API."""
 
-    def __init__(self, provider_key, user_key):
-        ThreeScaleAuthRep.__init__(self, provider_key, None, None, user_key)
+    def __init__(self, provider_key="", user_key="", service_id="", service_token="", backend_uri=""):
+        ThreeScaleAuthRep.__init__(self, provider_key, None, None, user_key, service_id, service_token, backend_uri)
 
     def validate(self):
         """validate the arguments. If any of following parameters is
