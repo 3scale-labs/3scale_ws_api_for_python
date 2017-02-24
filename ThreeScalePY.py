@@ -70,7 +70,7 @@ from lxml import etree
 import time
 from urlparse import urlparse
 
-__all__ = ['ThreeScale', 
+__all__ = ['ThreeScale',
            'ThreeScaleAuthRep', 'authrep', 'build_response',
            'ThreeScaleAuthRepUserKey', 'authrep', 'build_response',
            'ThreeScaleAuthRepResponse', 'get_reason',
@@ -108,7 +108,7 @@ class ThreeScale:
         inherited by ThreeScaleReport class, for which application id
         is passed in transactions data structure and application key
         is not necessary.
-    
+
         @throws ThreeScaleException error, if neither provider_key nor service_token + service_id are
         provided.
 
@@ -155,7 +155,7 @@ class ThreeScale:
         """This method rebuilds hash parameters to be correctly encoded later for URL.
         e.g. usage dictionary {'hits':1} is turned into {"usage[hits]:1}."""
         dict_params = {}
-        for key in dict.keys(): 
+        for key in dict.keys():
           k = "%s[%s]" % (param, key)
           dict_params[k] = dict[key]
         return dict_params
@@ -178,7 +178,7 @@ class ThreeScale:
         if log:
             params.update(self.dict_to_params(log, "log"))
 
-        return urllib.urlencode(params)        
+        return urllib.urlencode(params)
 
 class ThreeScaleAuthRep(ThreeScale):
     """ThreeScaleAuthRep(): The derived class for ThreeScale. It is
@@ -315,7 +315,7 @@ class ThreeScaleAuthRepUserKey(ThreeScaleAuthRep):
 
 class ThreeScaleAuthorize(ThreeScale):
     """ThreeScaleAuthorize(): The derived class for ThreeScale. It is
-    main class to invoke authorize GET API."""  
+    main class to invoke authorize GET API."""
 
     def validate(self):
         """validate the arguments. If any of following parameters is

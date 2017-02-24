@@ -143,7 +143,7 @@ class TestThreeScaleAuthRep(TestThreeScale):
                                           app_key = self.app_key,
                                           service_id = self.service_id,
                                           service_token = service_token)
-        self.assertFalse(authrep.authrep())     
+        self.assertFalse(authrep.authrep())
 
 class TestThreeScaleAuthorize(TestThreeScale):
     """test case for authorize API call"""
@@ -172,17 +172,17 @@ class TestThreeScaleAuthorize(TestThreeScale):
     def testAuthorizeWithInvalidProviderKey(self):
         """test authorize API with invalid provider key"""
         provider_key = 'invalidProviderKey'
-        auth = self.ThreeScaleAuthorize(provider_key, 
-                                        self.app_id, 
+        auth = self.ThreeScaleAuthorize(provider_key,
+                                        self.app_id,
                                         self.app_key)
         self.assertFalse(auth.authorize())
         self.assertEquals(403, auth.error_code)
         self.assertEquals("provider key \"invalidProviderKey\" is invalid", auth.build_auth_response().get_reason())
-            
+
     def testAuthorizeResponsePlan(self):
         """test authorize API response (plan)"""
-        auth = self.ThreeScaleAuthorize(self.provider_key, 
-                                        self.app_id, 
+        auth = self.ThreeScaleAuthorize(self.provider_key,
+                                        self.app_id,
                                         self.app_key)
         plan = 'Basic'
         if auth.authorize():
@@ -204,7 +204,7 @@ class TestThreeScaleAuthorize(TestThreeScale):
                                          app_key = self.app_key,
                                          service_id = self.service_id,
                                          service_token = service_token)
-        self.assertFalse(auth.authorize())            
+        self.assertFalse(auth.authorize())
 
     @httpretty.activate
     def testAuthorizeResponseUsageReport(self):
@@ -228,10 +228,10 @@ class TestThreeScaleAuthorize(TestThreeScale):
                 </usage_report>
               </usage_reports>
             </status>"""
-        auth = self.ThreeScaleAuthorize(self.provider_key, "foo", "bar")            
+        auth = self.ThreeScaleAuthorize(self.provider_key, "foo", "bar")
         uri = "%s/transactions/authorize.xml?provider_key=1234abcd&app_id=foo" % (auth.get_base_url())
         httpretty.register_uri(httpretty.GET, uri, status=200, body=xml_body)
-        
+
         self.assertTrue(auth.authorize())
 
         resp = auth.build_auth_response()
@@ -249,7 +249,7 @@ class TestThreeScaleReport(TestThreeScale):
     def setUp(self):
         """setUp for report API"""
         self.setupTests()
-  
+
     def testReportWithInvalidProviderKey(self):
         """test report API with invalid provider key"""
 
