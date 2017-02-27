@@ -82,6 +82,8 @@ except ImportError:
     from urllib2 import urlopen, Request, HTTPError, URLError
     from urlparse import urlparse
 
+__version__ = '2.5'
+
 __all__ = ['ThreeScale',
            'ThreeScaleAuthRep', 'authrep', 'build_response',
            'ThreeScaleAuthRepUserKey', 'authrep', 'build_response',
@@ -193,6 +195,10 @@ class ThreeScale:
 
         return urlencode(params)
 
+    def add_version_header(self, req):
+        version_header = "plugin-python-v%s" % __version__
+        req.add_header('X-3scale-User-Agent', version_header)    
+
 class ThreeScaleAuthRep(ThreeScale):
     """ThreeScaleAuthRep(): The derived class for ThreeScale. It is
     main class to invoke authrep GET API."""
@@ -241,8 +247,9 @@ class ThreeScaleAuthRep(ThreeScale):
         query_url = "%s?%s" % (authrep_url, query_str)
 
         try:
-            urlobj = urlopen(query_url, timeout=timeout)
-            resp = urlobj.read()
+            req = Request(query_url)
+            self.add_version_header(req)
+            resp = urlopen(req, timeout=timeout).read()
             self.authrepd = True
             self.authrep_xml = resp
             return True
@@ -373,8 +380,9 @@ class ThreeScaleAuthorize(ThreeScale):
         query_url = "%s?%s" % (auth_url, query_str)
 
         try:
-            urlobj = urlopen(query_url, timeout=timeout)
-            resp = urlobj.read()
+            req = Request(query_url)
+            self.add_version_header(req)
+            resp = urlopen(req, timeout=timeout).read()
             self.authorized = True
             self.auth_xml = resp
             return True
@@ -475,8 +483,9 @@ class ThreeScaleAuthorizeUserKey(ThreeScale):
 
         query_url = "%s?%s" % (auth_url, query_str)
         try:
-            urlobj = urlopen(query_url, timeout=timeout)
-            resp = urlobj.read()
+            req = Request(query_url)
+            self.add_version_header(req)
+            resp = urlopen(req, timeout=timeout).read()
             self.authorized = True
             self.auth_xml = resp
             return True
@@ -692,6 +701,7 @@ class ThreeScaleReport(ThreeScale):
 
         try:
             req = Request(report_url, data)
+            self.add_version_header(req)
             resp = urlopen(req, timeout=timeout)
             return True
         except HTTPError as err:

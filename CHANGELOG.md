@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `service_token` is supported along with `provider_key`
 - Backend URL is configurable, so the plugin can be used with on-premises 3scale API Management Platform
 - `authorize()` method supports `usage` and `other_params` arguments
+- Python 3 support
+- Adds `X-3scale-User-Agent` header (value format: plugin-python-v{version_number})
 
 ### Changed
 - `service_id` parameter is required (for accounts created before November 2016 backward compatibility is maintained)
