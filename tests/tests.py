@@ -261,7 +261,7 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
         t1['usage'] = trans_usage
-        trans_usage['timestamp'] = time.gmtime(time.time())
+        t1['timestamp'] = time.gmtime(time.time())
 
         transactions = [t1]
         self.assertRaises(self.ThreeScaleServerError, report.report, transactions)
@@ -275,7 +275,7 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
         t1['usage'] = trans_usage
-        trans_usage['timestamp'] = 'invalidTimeStamp'
+        t1['timestamp'] = 'invalidTimeStamp'
 
         transactions = [t1]
         self.assertRaises(self.ThreeScaleException, report.report, transactions)
@@ -289,7 +289,7 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
         t1['usage'] = trans_usage
-        trans_usage['timestamp'] = time.gmtime(time.time())
+        t1['timestamp'] = time.gmtime(time.time())
 
         transactions = [t1]
         self.assertTrue(report.report(transactions))
@@ -302,14 +302,14 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['hits'] = 1
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
-        trans_usage['timestamp'] = time.gmtime(time.time())
+        t1['timestamp'] = time.gmtime(time.time())
         t1['usage'] = trans_usage
         t2 = {}
         trans_usage = {}
         trans_usage['hits'] = 2
-        trans_usage['timestamp'] = time.gmtime(time.time())
         trans_usage['max_value'] = 2
         t2['app_id'] = self.app_id
+        t2['timestamp'] = time.gmtime(time.time())
         t2['usage'] = trans_usage
 
         transactions = [t1, t2]

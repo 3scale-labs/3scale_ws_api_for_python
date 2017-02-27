@@ -57,12 +57,12 @@ Report POST API usage:
     t1 = {}
     trans_usage = {}
     trans_usage['hits'] = 1
-    trans_usage['max_value'] = 5
-    trans_usage['timestamp'] = time.gmtime(time.time())
-    t1['app_id'] = app_id OR t1['user_key']
+    trans_usage['custom_metric'] = 5
     t1['usage'] = trans_usage
-
+    t1['timestamp'] = time.gmtime(time.time())
+    t1['app_id'] = 'your_app_id' # OR t1['user_key'] = 'your_user_key'
     transactions = [t1]
+
     report = ThreeScalePY.ThreeScaleReport(service_id = 'your_service_id', service_token = 'your_service_token')
     resp = report.report(transactions)
 """
