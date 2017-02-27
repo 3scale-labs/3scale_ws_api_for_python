@@ -67,35 +67,26 @@ Report POST API usage:
     resp = report.report(transactions)
 """
 
-import sys
 import time
 from lxml import etree
 
 try:
     # Python 3
-    from urllib.parse import urlencode, quote, quote_plus, urlparse
+    from urllib.parse import urlencode, quote, urlparse
     from urllib.request import urlopen, Request
     from urllib.error import HTTPError, URLError
 except ImportError:
     # Python 2
-    from urllib import urlencode, quote, quote_plus
+    from urllib import urlencode, quote
     from urllib2 import urlopen, Request, HTTPError, URLError
     from urlparse import urlparse
 
 __version__ = '2.5'
 
 __all__ = ['ThreeScale',
-           'ThreeScaleAuthRep', 'authrep', 'build_response',
-           'ThreeScaleAuthRepUserKey', 'authrep', 'build_response',
-           'ThreeScaleAuthRepResponse', 'get_reason',
-           'ThreeScaleAuthorize', 'authorize', 'build_auth_response',
-           'ThreeScaleAuthorizeUserKey', 'authorize', 'build_auth_response',
-           'ThreeScaleAuthorizeResponse',
-           'get_plan', 'get_usage_reports',
-           'ThreeScaleAuthorizeResponseUsageReport',
-           'get_period', 'get_metric', 'get_start_period',
-           'get_end_period', 'get_max_value', 'get_current_value',
-           'ThreeScaleReport', 'report'
+           'ThreeScaleAuthRep', 'ThreeScaleAuthRepUserKey', 'ThreeScaleAuthRepResponse', 
+           'ThreeScaleAuthorize', 'ThreeScaleAuthorizeUserKey', 'ThreeScaleAuthorizeResponse',
+           'ThreeScaleReport', 'ThreeScaleAuthorizeResponseUsageReport'
           ]
 
 class ThreeScale:
@@ -669,7 +660,6 @@ class ThreeScaleReport(ThreeScale):
         @throws ThreeScaleException error, if the timestamp specified in
         transaction is invalid.
         """
-        result = []
         new_value = ""
         for key in trans.keys():
             if key == 'usage': # usage is list
@@ -679,7 +669,7 @@ class ThreeScaleReport(ThreeScale):
                 ts = trans[key]
                 try:
                     new_value += "%s[%s]=%s" % (prefix, key, quote(str(time.strftime('%Y-%m-%d %H:%M:%S %z', ts))))
-                except Exception as err:
+                except Exception:
                     raise ThreeScaleException("Invalid timestamp "
                                               "'%s' specified in "
                                               "transaction" % ts)
@@ -706,7 +696,7 @@ class ThreeScaleReport(ThreeScale):
         try:
             req = Request(report_url, data)
             self.add_version_header(req)
-            resp = urlopen(req, timeout=timeout)
+            urlopen(req, timeout=timeout)
             return True
         except HTTPError as err:
             raise ThreeScaleServerError("Invalid response for url "
