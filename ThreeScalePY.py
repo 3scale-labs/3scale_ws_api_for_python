@@ -81,7 +81,7 @@ except ImportError:
     from urllib2 import urlopen, Request, HTTPError, URLError
     from urlparse import urlparse
 
-__version__ = '2.5'
+__version__ = '2.6.0'
 
 __all__ = ['ThreeScale',
            'ThreeScaleAuthRep', 'ThreeScaleAuthRepUserKey', 'ThreeScaleAuthRepResponse', 
