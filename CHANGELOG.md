@@ -14,3 +14,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - `service_id` parameter is required (for accounts created before November 2016 backward compatibility is maintained)
+- Fixed bug [#7](https://github.com/3scale/3scale_ws_api_for_python/issues/7)

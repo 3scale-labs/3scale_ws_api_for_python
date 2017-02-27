@@ -565,10 +565,12 @@ class ThreeScaleAuthorizeResponse():
         """
         report = ThreeScaleAuthorizeResponseUsageReport()
         report.set_metric(xml.xpath('@metric')[0])
-        report.set_period(xml.xpath('@period')[0])
-        start = xml.xpath('period_start')[0].text
-        end = xml.xpath('period_end')[0].text
-        report.set_interval(start, end)
+        period = xml.xpath('@period')[0]
+        report.set_period(period)
+        if period != "eternity":
+            start = xml.xpath('period_start')[0].text
+            end = xml.xpath('period_end')[0].text
+            report.set_interval(start, end)
         report.set_max_value(xml.xpath('max_value')[0].text)
         report.set_current_value(xml.xpath(\
                                 'current_value')[0].text)
@@ -588,6 +590,8 @@ class ThreeScaleAuthorizeResponseUsageReport():
         self.end = None
         self.max_value = None
         self.current_value = None
+        self.start_period = None
+        self.end_period = None
 
     def set_metric(self, metric):
         self.metric = metric
