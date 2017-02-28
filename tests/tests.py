@@ -334,6 +334,15 @@ class TestThreeScaleReport(TestThreeScale):
         transactions = [{'usage': { 'hits': 1}}]
         self.assertRaises(self.ThreeScaleServerError, report.report, transactions)
 
+    def testSupportTransactionsAsTuple(self):
+        """test that report supports tuples of transactions"""
+        report = self.ThreeScaleReport( service_id = self.service_id,
+                                        service_token = self.service_token)
+        tr1 = {'usage': {'hits': 1}, 'app_id': self.app_id }
+        tr2 = {'usage': {'custom_metric': 2}, 'app_id': self.app_id }
+        transactions = (tr1, tr2)
+        self.assertTrue(report.report(transactions))
+
 if __name__ == '__main__':
     exec_type = 'all' # argv[1] can be: authrep, authorize, report, all
     if len(sys.argv) == 2:
@@ -346,7 +355,7 @@ if __name__ == '__main__':
                    'testAuthorizeResponsePlan',
                    'testAuthorizeResponseUsageReport',
                    'testAuthorizeWithServiceIdAndServiceToken',
-                   'testAuthorizeWithInvalidServiceToken'
+                   'testAuthorizeWithInvalidServiceToken',
                  ]
 
     if exec_type in ('all', 'authorize'):
@@ -377,7 +386,8 @@ if __name__ == '__main__':
                      'testReportWithOneTransaction',
                      'testReportWithTwoTransactions',
                      'testReportWithServiceIdAndServiceToken',
-                     'testReportWithInvalidServiceToken'
+                     'testReportWithInvalidServiceToken',
+                     'testSupportTransactionsAsTuple'
                    ]
     for test in report_tests:
         if exec_type in ('all', 'report'):

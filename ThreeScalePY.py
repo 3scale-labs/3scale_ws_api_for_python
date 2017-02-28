@@ -645,7 +645,7 @@ class ThreeScaleReport(ThreeScale):
         encoded = ''
         i = 0
 
-        if type(transactions).__name__ != 'list':
+        if not isinstance(transactions, (tuple, list)):
             raise ThreeScaleException("Invalid transaction type")
 
         for trans in transactions:
