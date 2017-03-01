@@ -2,8 +2,13 @@ language: python
 python:
 - '2.6'
 - '2.7'
+- '3.3'
+- '3.6'
 script: python tests/tests.py
 env:
   global:
-  - TEST_3SCALE_APP_ID=4d4b20b9 TEST_3SCALE_APP_KEY=ecce202ecc2eb8dc7a499c34a34d5987
-  - secure: WK46Rf58rVyCF/URwHhvgqArMWyM4sJwWxNRZzYKTHIRzGuwMbu3PmZxFlHuf1xkMjd+f/sYEWFKKKuibcQH+4Rsugj3bSeUrMMlxHiT9GkvVt9pUasjI+E8HhHiWC/F92tL+o3tf3jBbqy83WUSqgOTKYzvPwhrgi09USrKB/Y=
+  - TEST_3SCALE_APP_ID=4d4b20b9
+  - secure: CpUMPfYqi2N+wY3E0TECSiT0+hcwIYXHNu+MgcpOmpl3Jm8bOvG5b23Rkrt04IPRN0MX5VV2OVc3HxxRCiKisc3iOmAXDC5ZJ7KEnfUCioU5ZxkPeLtGcS3rktZvLnLVfQqINo/EYk/nD3hEa87/C9K7JSknOiEQ5Im56zbVq2A=
+  - secure: T+/2htb2PAfnLt96Cp1sqAULTnrmwXpPs52+pfBac/q98C08FCWvwi3SBHSpfYYX9GtyMWII3PvOWWvGIIPTfEz6EeKyDXAQPhWXLlvIR0+xOO1rwhbKMDQWCiHA5zZv/hdKKGA8V1FxySDrPJBuFeQ2/hQLFxFr8zjcn59zcgk=
+  - secure: CAf1Grs4QDpoqN7O7X5VcoF+UaqoSQiD5VVjBbzIBTwBi6cneXui6oS8YxupNmwsrDn+A5M/RfJ/Cu+o87h7DZcKbVQ5VTFLUyEfy3YMsz/Q1m2o942odKN+5JdS47DUk3cUDYzLckIBPH8dVC0IyQDJZBn1qIz+ah4ykFX7mwY=
+  - secure: t0rnWnxouFgKaH8+k+uNDCKeoXi5dV2Tefwnf1e5d+F77kgzjg0J0ouOJLlI2CvPpwVh0Yz8IaBzRJRJl5ZkZhoXLWY/A/VBtpSd7e+coFmHaqICyxT2Ll19RESWhg02eTXemUetPv1YdBUgUlyL43eEVfIvsm5LXDm3sVtjzH8=

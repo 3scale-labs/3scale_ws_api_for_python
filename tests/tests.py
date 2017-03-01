@@ -20,12 +20,33 @@ class TestThreeScale(unittest.TestCase):
         self.app_id = os.environ['TEST_3SCALE_APP_ID'] # or set app id here
         self.app_key = os.environ['TEST_3SCALE_APP_KEY'] # or set app key here
         self.provider_key = os.environ['TEST_3SCALE_PROVIDER_KEY'] # or set provider key here
+        self.service_id = os.environ['TEST_3SCALE_SERVICE_ID'] # or set provider key here
+        self.service_token = os.environ['TEST_3SCALE_SERVICE_TOKEN'] # or set provider key here
 
+        self.ThreeScale = ThreeScalePY.ThreeScale
         self.ThreeScaleAuthRep = ThreeScalePY.ThreeScaleAuthRep
         self.ThreeScaleAuthorize = ThreeScalePY.ThreeScaleAuthorize
         self.ThreeScaleReport = ThreeScalePY.ThreeScaleReport
         self.ThreeScaleServerError = ThreeScalePY.ThreeScaleServerError
         self.ThreeScaleException = ThreeScalePY.ThreeScaleException
+
+    def setUp(self):
+        self.setupTests()
+
+    def testCorrectUrlValidation(self):
+        """test constructor with valid custom backend URI"""
+        uri = 'http://backend.url:80'
+        client = self.ThreeScale(self.provider_key, backend_uri=uri)
+        self.assertEqual(client.get_base_url(), uri)
+
+    def testInvalidUrlValidation(self):
+        """test constructor with invalid custom backend URI"""
+        uri = 'invalid-url'
+        self.assertRaises(self.ThreeScaleException, self.ThreeScale, self.provider_key, backend_uri=uri)
+
+    def testProviderKeyOrServiceTokenMissing(self):
+        """test constructor when neither provider key nor service token are passed"""
+        self.assertRaises(self.ThreeScaleException, self.ThreeScale, provider_key="", service_token="")
 
 class TestThreeScaleAuthRep(TestThreeScale):
     """test case for authrep API call"""
@@ -87,9 +108,42 @@ class TestThreeScaleAuthRep(TestThreeScale):
         authrep = self.ThreeScaleAuthRep(self.provider_key, self.app_id, self.app_key)
 
         self.assertFalse(authrep.authrep({"invalid_metric":1}))
-        self.assertEquals(403, authrep.error_code)
+        self.assertEquals(404, authrep.error_code)
         self.assertEquals("metric \"invalid_metric\" is invalid", authrep.build_response().get_reason())
 
+    def testValidAuthRepWithServiceId(self):
+        """test authrep API with valid credentials and service ID"""
+        authrep = self.ThreeScaleAuthRep(self.provider_key,
+                                         self.app_id,
+                                         self.app_key,
+                                         service_id = self.service_id)
+        self.assertTrue(authrep.authrep())
+
+    def testAuthRepWithInvalidServiceId(self):
+        """test authrep API with invalid service ID"""
+        service_id = 'invalidServiceId'
+        authrep = self.ThreeScaleAuthRep(self.provider_key,
+                                         self.app_id,
+                                         self.app_key,
+                                         service_id = service_id)
+        self.assertFalse(authrep.authrep())
+
+    def testAuthRepWithServiceIdAndServiceToken(self):
+        """test authrep API with valid service ID and service token"""
+        authrep = self.ThreeScaleAuthRep( app_id = self.app_id,
+                                          app_key = self.app_key,
+                                          service_id = self.service_id,
+                                          service_token = self.service_token)
+        self.assertTrue(authrep.authrep())
+
+    def testAuthRepWithInvalidServiceToken(self):
+        """test authrep API with valid service ID and invalid service token"""
+        service_token = 'invalidServiceToken'
+        authrep = self.ThreeScaleAuthRep( app_id = self.app_id,
+                                          app_key = self.app_key,
+                                          service_id = self.service_id,
+                                          service_token = service_token)
+        self.assertFalse(authrep.authrep())
 
 class TestThreeScaleAuthorize(TestThreeScale):
     """test case for authorize API call"""
@@ -111,31 +165,46 @@ class TestThreeScaleAuthorize(TestThreeScale):
         auth = self.ThreeScaleAuthorize(self.provider_key,
                                         app_id,
                                         self.app_key)
-        try:
-            auth.authorize()
-        except self.ThreeScaleServerError, err:
-            self.assert_(True, True)
+        self.assertFalse(auth.authorize())
+        self.assertEquals(404, auth.error_code)
+        self.assertEquals("application with id=\"invalidAppId\" was not found", auth.build_auth_response().get_reason())
 
     def testAuthorizeWithInvalidProviderKey(self):
         """test authorize API with invalid provider key"""
         provider_key = 'invalidProviderKey'
-        auth = self.ThreeScaleAuthorize(provider_key, 
-                                        self.app_id, 
+        auth = self.ThreeScaleAuthorize(provider_key,
+                                        self.app_id,
                                         self.app_key)
-        try:
-            auth.authorize()
-        except self.ThreeScaleServerError, err:
-            self.assert_(True, True)
+        self.assertFalse(auth.authorize())
+        self.assertEquals(403, auth.error_code)
+        self.assertEquals("provider key \"invalidProviderKey\" is invalid", auth.build_auth_response().get_reason())
 
     def testAuthorizeResponsePlan(self):
         """test authorize API response (plan)"""
-        auth = self.ThreeScaleAuthorize(self.provider_key, 
-                                        self.app_id, 
+        auth = self.ThreeScaleAuthorize(self.provider_key,
+                                        self.app_id,
                                         self.app_key)
         plan = 'Basic'
         if auth.authorize():
             resp = auth.build_auth_response()
             self.assertEquals(resp.get_plan(), plan)
+
+    def testAuthorizeWithServiceIdAndServiceToken(self):
+        """test authorize API with valid service ID and service token"""
+        auth = self.ThreeScaleAuthorize( app_id = self.app_id,
+                                         app_key = self.app_key,
+                                         service_id = self.service_id,
+                                         service_token = self.service_token)
+        self.assertTrue(auth.authorize())
+
+    def testAuthorizeWithInvalidServiceToken(self):
+        """test authrep API with valid service ID and invalid service token"""
+        service_token = 'invalidServiceToken'
+        auth = self.ThreeScaleAuthorize( app_id = self.app_id,
+                                         app_key = self.app_key,
+                                         service_id = self.service_id,
+                                         service_token = service_token)
+        self.assertFalse(auth.authorize())
 
     @httpretty.activate
     def testAuthorizeResponseUsageReport(self):
@@ -159,8 +228,10 @@ class TestThreeScaleAuthorize(TestThreeScale):
                 </usage_report>
               </usage_reports>
             </status>"""
-        httpretty.register_uri(httpretty.GET, "http://su1.3scale.net/transactions/authorize.xml?provider_key=1234abcd&app_id=foo", status=200, body=xml_body)
         auth = self.ThreeScaleAuthorize(self.provider_key, "foo", "bar")
+        uri = "%s/transactions/authorize.xml?provider_key=1234abcd&app_id=foo" % (auth.get_base_url())
+        httpretty.register_uri(httpretty.GET, uri, status=200, body=xml_body)
+
         self.assertTrue(auth.authorize())
 
         resp = auth.build_auth_response()
@@ -178,7 +249,7 @@ class TestThreeScaleReport(TestThreeScale):
     def setUp(self):
         """setUp for report API"""
         self.setupTests()
-  
+
     def testReportWithInvalidProviderKey(self):
         """test report API with invalid provider key"""
 
@@ -190,13 +261,10 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
         t1['usage'] = trans_usage
-        trans_usage['timestamp'] = time.gmtime(time.time())
+        t1['timestamp'] = time.gmtime(time.time())
 
         transactions = [t1]
-        try:
-            report.report(transactions)
-        except self.ThreeScaleServerError, err:
-            self.assert_(True, True)
+        self.assertRaises(self.ThreeScaleServerError, report.report, transactions)
 
     def testReportWithInvalidTimestamp(self):
         """test report API with invalid timestamp"""
@@ -207,13 +275,10 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
         t1['usage'] = trans_usage
-        trans_usage['timestamp'] = 'invalidTimeStamp'
+        t1['timestamp'] = 'invalidTimeStamp'
 
         transactions = [t1]
-        try:
-            report.report(transactions)
-        except self.ThreeScaleException, err:
-            self.assert_(True, True)
+        self.assertRaises(self.ThreeScaleException, report.report, transactions)
 
     def testReportWithOneTransaction(self):
         """test report API with one transaction"""
@@ -224,7 +289,7 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
         t1['usage'] = trans_usage
-        trans_usage['timestamp'] = time.gmtime(time.time())
+        t1['timestamp'] = time.gmtime(time.time())
 
         transactions = [t1]
         self.assertTrue(report.report(transactions))
@@ -237,17 +302,45 @@ class TestThreeScaleReport(TestThreeScale):
         trans_usage['hits'] = 1
         trans_usage['max_value'] = 5
         t1['app_id'] = self.app_id
-        trans_usage['timestamp'] = time.gmtime(time.time())
+        t1['timestamp'] = time.gmtime(time.time())
         t1['usage'] = trans_usage
         t2 = {}
         trans_usage = {}
         trans_usage['hits'] = 2
-        trans_usage['timestamp'] = time.gmtime(time.time())
         trans_usage['max_value'] = 2
         t2['app_id'] = self.app_id
+        t2['timestamp'] = time.gmtime(time.time())
         t2['usage'] = trans_usage
 
         transactions = [t1, t2]
+        self.assertTrue(report.report(transactions))
+
+    def testReportWithServiceIdAndServiceToken(self):
+        """test report API with valid service ID and service token"""
+        transactions = [{'usage': { 'hits': 1}}]
+        report = self.ThreeScaleReport( app_id = self.app_id,
+                                        app_key = self.app_key,
+                                        service_id = self.service_id,
+                                        service_token = self.service_token)
+        self.assertTrue(report.report(transactions))
+
+    def testReportWithInvalidServiceToken(self):
+        """test report API with valid service ID and invalid service token"""
+        service_token = 'invalidServiceToken'
+        report = self.ThreeScaleReport( app_id = self.app_id,
+                                        app_key = self.app_key,
+                                        service_id = self.service_id,
+                                        service_token = service_token)
+        transactions = [{'usage': { 'hits': 1}}]
+        self.assertRaises(self.ThreeScaleServerError, report.report, transactions)
+
+    def testSupportTransactionsAsTuple(self):
+        """test that report supports tuples of transactions"""
+        report = self.ThreeScaleReport( service_id = self.service_id,
+                                        service_token = self.service_token)
+        tr1 = {'usage': {'hits': 1}, 'app_id': self.app_id }
+        tr2 = {'usage': {'custom_metric': 2}, 'app_id': self.app_id }
+        transactions = (tr1, tr2)
         self.assertTrue(report.report(transactions))
 
 if __name__ == '__main__':
@@ -260,7 +353,9 @@ if __name__ == '__main__':
                    'testAuthorizeWithInvalidProviderKey',
                    'testAuthorizeWithValidCredentials',
                    'testAuthorizeResponsePlan',
-                   'testAuthorizeResponseUsageReport'
+                   'testAuthorizeResponseUsageReport',
+                   'testAuthorizeWithServiceIdAndServiceToken',
+                   'testAuthorizeWithInvalidServiceToken',
                  ]
 
     if exec_type in ('all', 'authorize'):
@@ -275,6 +370,10 @@ if __name__ == '__main__':
                       'testAuthRepWithInvalidAppKey',
                       'testAuthRepWithMissingAppKey',
                       'testAuthRepWithInvalidMetric',
+                      'testValidAuthRepWithServiceId',
+                      'testAuthRepWithInvalidServiceId',
+                      'testAuthRepWithServiceIdAndServiceToken',
+                      'testAuthRepWithInvalidServiceToken'
                     ]
 
     for test in authrep_tests:
@@ -286,10 +385,17 @@ if __name__ == '__main__':
                      'testReportWithInvalidTimestamp',
                      'testReportWithOneTransaction',
                      'testReportWithTwoTransactions',
+                     'testReportWithServiceIdAndServiceToken',
+                     'testReportWithInvalidServiceToken',
+                     'testSupportTransactionsAsTuple'
                    ]
     for test in report_tests:
         if exec_type in ('all', 'report'):
             suite.addTest(TestThreeScaleReport(test))
+
+    suite.addTest(TestThreeScale('testCorrectUrlValidation'))
+    suite.addTest(TestThreeScale('testInvalidUrlValidation'))
+    suite.addTest(TestThreeScale('testProviderKeyOrServiceTokenMissing'))
 
     result = unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()
     sys.exit(not result)
