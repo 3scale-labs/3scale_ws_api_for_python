@@ -31,9 +31,9 @@ or you may put `ThreeScalePY.py` inside the same directory as your program.
 
 ## Dependencies
 
-**libxml2** is required, if you are unable to install (as in Google AppEngine), please use the `ElementTree` branch.
+**lxml** is required.
 
-You can get the `libxml2` bindings for Python from: ftp://xmlsoft.org/libxml2/python/libxml2-python-2.6.21.tar.gz  
+You can get the `lxml` bindings for Python from: https://github.com/lxml/lxml/releases
 
 The easiest way to install it is using pip:
 ```shell
