@@ -77,10 +77,9 @@ try:
     from urllib.error import HTTPError, URLError
 except ImportError:
     # Python 2
-    from urllib.parse import urlencode, quote
-    from urllib.request import urlopen, Request
-    from urllib.error import HTTPError, URLError
-    from urllib.parse import urlparse
+    from urllib import urlencode, quote
+    from urllib2 import urlopen, Request, HTTPError, URLError
+    from urlparse import urlparse
 
 __version__ = '2.6.0'
 
@@ -662,7 +661,7 @@ class ThreeScaleReport(ThreeScale):
         transaction is invalid.
         """
         new_value = ""
-        for key in list(trans.keys()):
+        for key in trans.keys():
             if key == 'usage': # usage is list
                     new_prefix=("%s[usage]" % (prefix))
                     new_value += self.encode_recursive(new_prefix, trans[key])
