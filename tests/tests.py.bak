@@ -359,7 +359,7 @@ if __name__ == '__main__':
                  ]
 
     if exec_type in ('all', 'authorize'):
-        suite = unittest.TestSuite(list(map(TestThreeScaleAuthorize, auth_tests)))
+        suite = unittest.TestSuite(map(TestThreeScaleAuthorize, auth_tests))
     else:
         suite = unittest.TestSuite()
 
